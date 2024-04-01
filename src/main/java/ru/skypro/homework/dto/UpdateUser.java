@@ -4,14 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-@Schema
-public class Register {
-
-    @Schema(minLength = 4, maxLength = 32, description = "логин")
-    private String username;
-
-    @Schema(minLength = 8, maxLength = 16, description = "пароль")
-    private String password;
+public class UpdateUser {
 
     @Schema(minLength = 2, maxLength = 16, description = "имя пользователя")
     private String firstName;
@@ -21,7 +14,4 @@ public class Register {
 
     @Schema(pattern = "\\+7\\s?\\(?\\d{3}\\)?\\s?\\d{3}-?\\d{2}-?\\d{2}", description = "телефон пользователя")
     private String phone;
-
-    @Schema(description = "роль пользователя")
-    private Role role;
 }
