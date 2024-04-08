@@ -5,6 +5,8 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +14,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.*;
 
+@Slf4j
+@CrossOrigin(value = "http://localhost:3000")
 @RequestMapping("ads")
 @RestController
+@RequiredArgsConstructor
 public class AdsController {
 
     @Operation(summary = "Получение всех объявлений",
@@ -26,7 +31,7 @@ public class AdsController {
             }, tags = "Объявления")
     @GetMapping()
     public ResponseEntity<AdsDto> getAds() {
-            return ResponseEntity.ok().build();
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "Добавление объявления",
@@ -183,7 +188,7 @@ public class AdsController {
                     )
             }, tags = "Объявления")
     @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String[]> updateAdImage(@PathVariable("id") Integer id,@RequestPart MultipartFile image) {
+    public ResponseEntity<String[]> updateAdImage(@PathVariable("id") Integer id, @RequestPart MultipartFile image) {
         if (true) {
             return ResponseEntity.status(HttpStatus.OK).build();
         } else if (false) {

@@ -4,17 +4,23 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skypro.homework.dto.NewPassword;
-import ru.skypro.homework.dto.UpdateUser;
-import ru.skypro.homework.dto.User;
+import ru.skypro.homework.dto.NewPasswordDto;
+import ru.skypro.homework.dto.UpdateUserDto;
+import ru.skypro.homework.dto.UserDto;
 
+
+@Slf4j
+@CrossOrigin(value = "http://localhost:3000")
 @RequestMapping("users")
 @RestController
+@RequiredArgsConstructor
 public class UserController {
 
     @Operation(summary = "Обновление пароля",
@@ -29,7 +35,7 @@ public class UserController {
                     )
             }, tags = "Пользователи")
     @PostMapping("/set_password")
-    public ResponseEntity<?> updatePassword(@RequestBody NewPassword updatePassword) {
+    public ResponseEntity<?> updatePassword(@RequestBody NewPasswordDto updatePassword) {
         if (true) {
             return ResponseEntity.ok().build();
         } else {
@@ -42,7 +48,7 @@ public class UserController {
                     @ApiResponse(
                             responseCode = "200",
                             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = User.class))
+                                    schema = @Schema(implementation = UserDto.class))
                     ),
                     @ApiResponse(
                             responseCode = "401",
@@ -50,7 +56,7 @@ public class UserController {
                     )
             }, tags = "Пользователи")
     @GetMapping("/me")
-    public ResponseEntity<User> getAuthenticatedUserInfo() {
+    public ResponseEntity<UserDto> getAuthenticatedUserInfo() {
         if (true) {
             return ResponseEntity.ok().build();
         } else {
@@ -63,7 +69,7 @@ public class UserController {
                     @ApiResponse(
                             responseCode = "200",
                             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = UpdateUser.class))
+                                    schema = @Schema(implementation = UpdateUserDto.class))
                     ),
                     @ApiResponse(
                             responseCode = "401",
@@ -71,7 +77,7 @@ public class UserController {
                     )
             }, tags = "Пользователи")
     @PatchMapping("/me")
-    public ResponseEntity<?> updateAuthenticatedUser(@RequestBody UpdateUser updateUser) {
+    public ResponseEntity<?> updateAuthenticatedUser(@RequestBody UpdateUserDto updateUserDto) {
         if (true) {
             return ResponseEntity.ok().build();
         } else {

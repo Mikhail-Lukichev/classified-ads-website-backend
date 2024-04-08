@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Schema
-public class User {
+public class UserDto {
 
     @Schema(description = "id пользователя")
     private Integer id;
@@ -27,4 +27,14 @@ public class User {
 
     @Schema(description = "ссылка на аватар пользователя")
     private String image;
+
+    public UserDto(Integer id, String email, String firstName, String lastName, String phone, Role role, String image) {
+        this.id = id;
+        this.email = email;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phone = phone;
+        this.role = role;
+        this.image = image;
+    }
 }
