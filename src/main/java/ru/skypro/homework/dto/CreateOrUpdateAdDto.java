@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Schema
-public class CreateOrUpdateAd {
+public class CreateOrUpdateAdDto {
 
     @Schema(minLength = 4, maxLength = 32, description = "заголовок объявления")
     private String title;

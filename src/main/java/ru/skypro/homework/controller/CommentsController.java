@@ -8,9 +8,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import ru.skypro.homework.dto.Comment;
-import ru.skypro.homework.dto.Comments;
-import ru.skypro.homework.dto.CreateOrUpdateComment;
+import ru.skypro.homework.dto.CommentDto;
+import ru.skypro.homework.dto.CommentsDto;
+import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 
 @RequestMapping("ads")
 @RestController
@@ -21,7 +21,7 @@ public class CommentsController {
                     @ApiResponse(
                             responseCode = "200",
                             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Comments.class))
+                                    schema = @Schema(implementation = CommentsDto.class))
                     ),
                     @ApiResponse(
                             responseCode = "401",
@@ -33,7 +33,7 @@ public class CommentsController {
                     )
             }, tags = "Комментарии")
     @GetMapping(value = "/{id}/comments")
-    public ResponseEntity<Comments> getAdComments(@PathVariable("id") int id) {
+    public ResponseEntity<CommentsDto> getAdComments(@PathVariable("id") int id) {
         if (true) {
             return ResponseEntity.ok().build();
         } else if (false) {
@@ -48,7 +48,7 @@ public class CommentsController {
                     @ApiResponse(
                             responseCode = "200",
                             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Comment.class))
+                                    schema = @Schema(implementation = CommentDto.class))
                     ),
                     @ApiResponse(
                             responseCode = "401",
@@ -60,7 +60,7 @@ public class CommentsController {
                     )
             }, tags = "Комментарии")
     @PostMapping(value = "/{id}/comments")
-    public ResponseEntity<Comments> postAdComment(@PathVariable("id") int id, @RequestBody CreateOrUpdateComment body) {
+    public ResponseEntity<CommentsDto> postAdComment(@PathVariable("id") int id, @RequestBody CreateOrUpdateCommentDto body) {
         if (true) {
             return ResponseEntity.ok().build();
         } else if (false) {
@@ -90,7 +90,7 @@ public class CommentsController {
                     )
             }, tags = "Комментарии")
     @DeleteMapping(value = "/{adId}/comments/{commentId}")
-    public ResponseEntity<Comments> deleteAdComment(@PathVariable("adId") int adId, @PathVariable("commentId") int commentId) {
+    public ResponseEntity<CommentsDto> deleteAdComment(@PathVariable("adId") int adId, @PathVariable("commentId") int commentId) {
         if (true) {
             return ResponseEntity.ok().build();
         } else if (false) {
@@ -106,7 +106,7 @@ public class CommentsController {
             responses = {
                     @ApiResponse(
                             responseCode = "200",
-                            content = @Content(schema = @Schema(implementation = Comment.class))
+                            content = @Content(schema = @Schema(implementation = CommentDto.class))
                     ),
                     @ApiResponse(
                             responseCode = "401",
@@ -122,7 +122,7 @@ public class CommentsController {
                     )
             }, tags = "Комментарии")
     @PatchMapping(value = "/{adId}/comments/{commentId}")
-    public ResponseEntity<Comment> updateAdComment(@PathVariable("adId") int adId, @PathVariable("commentId") int commentId, @RequestBody CreateOrUpdateComment body) {
+    public ResponseEntity<CommentDto> updateAdComment(@PathVariable("adId") int adId, @PathVariable("commentId") int commentId, @RequestBody CreateOrUpdateCommentDto body) {
         if (true) {
             return ResponseEntity.ok().build();
         } else if (false) {

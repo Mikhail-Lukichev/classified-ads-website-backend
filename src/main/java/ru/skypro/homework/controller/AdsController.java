@@ -21,11 +21,11 @@ public class AdsController {
                     @ApiResponse(
                             responseCode = "200",
                             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Ads.class))
+                                    schema = @Schema(implementation = AdsDto.class))
                     )
             }, tags = "Объявления")
     @GetMapping()
-    public ResponseEntity<Ads> getAds() {
+    public ResponseEntity<AdsDto> getAds() {
             return ResponseEntity.ok().build();
     }
 
@@ -34,7 +34,7 @@ public class AdsController {
                     @ApiResponse(
                             responseCode = "201",
                             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Ad.class))
+                                    schema = @Schema(implementation = AdDto.class))
                     ),
                     @ApiResponse(
                             responseCode = "401",
@@ -42,7 +42,7 @@ public class AdsController {
                     )
             }, tags = "Объявления")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Ad> postAd(@RequestPart(required = true) CreateOrUpdateAd properties, @RequestPart MultipartFile image) {
+    public ResponseEntity<AdDto> postAd(@RequestPart(required = true) CreateOrUpdateAdDto properties, @RequestPart MultipartFile image) {
         if (true) {
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } else {
@@ -55,7 +55,7 @@ public class AdsController {
                     @ApiResponse(
                             responseCode = "200",
                             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = ExtendedAd.class))
+                                    schema = @Schema(implementation = ExtendedAdDto.class))
                     ),
                     @ApiResponse(
                             responseCode = "401",
@@ -67,7 +67,7 @@ public class AdsController {
                     )
             }, tags = "Объявления")
     @GetMapping(value = "/{id}")
-    public ResponseEntity<ExtendedAd> getAd(@PathVariable("id") Integer id) {
+    public ResponseEntity<ExtendedAdDto> getAd(@PathVariable("id") Integer id) {
         if (true) {
             return ResponseEntity.ok().build();
         } else if (false) {
@@ -97,7 +97,7 @@ public class AdsController {
                     )
             }, tags = "Объявления")
     @DeleteMapping(value = "/{id}")
-    public ResponseEntity<ExtendedAd> deleteAd(@PathVariable("id") Integer id) {
+    public ResponseEntity<ExtendedAdDto> deleteAd(@PathVariable("id") Integer id) {
         if (true) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } else if (false) {
@@ -114,7 +114,7 @@ public class AdsController {
                     @ApiResponse(
                             responseCode = "200",
                             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Ad.class))
+                                    schema = @Schema(implementation = AdDto.class))
                     ),
                     @ApiResponse(
                             responseCode = "401",
@@ -130,7 +130,7 @@ public class AdsController {
                     )
             }, tags = "Объявления")
     @PatchMapping(value = "/{id}")
-    public ResponseEntity<ExtendedAd> updateAd(@PathVariable("id") Integer id, @RequestPart(required = true) CreateOrUpdateAd properties) {
+    public ResponseEntity<ExtendedAdDto> updateAd(@PathVariable("id") Integer id, @RequestPart(required = true) CreateOrUpdateAdDto properties) {
         if (true) {
             return ResponseEntity.status(HttpStatus.OK).build();
         } else if (false) {
@@ -147,7 +147,7 @@ public class AdsController {
                     @ApiResponse(
                             responseCode = "200",
                             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = Ads.class))
+                                    schema = @Schema(implementation = AdsDto.class))
                     ),
                     @ApiResponse(
                             responseCode = "401",
@@ -155,7 +155,7 @@ public class AdsController {
                     )
             }, tags = "Объявления")
     @GetMapping(value = "/me")
-    public ResponseEntity<Ads> getAuthenticatedUserAds() {
+    public ResponseEntity<AdsDto> getAuthenticatedUserAds() {
         if (true) {
             return ResponseEntity.ok().build();
         } else {

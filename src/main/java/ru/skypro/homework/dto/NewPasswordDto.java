@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Schema
-public class NewPassword {
+public class NewPasswordDto {
 
     @Schema(minLength = 8, maxLength = 16, description = "текущий пароль")
     private String currentPassword;
