@@ -5,7 +5,7 @@ import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
-@Schema
+@Schema(type = "string",format = "binary")
 public class CreateOrUpdateAdDto {
 
     @Schema(minLength = 4, maxLength = 32, description = "заголовок объявления")

@@ -19,9 +19,11 @@ import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.AdImage;
 import ru.skypro.homework.entity.Author;
 import ru.skypro.homework.mapper.AdMapper;
+import ru.skypro.homework.service.impl.AdImageServiceImpl;
 import ru.skypro.homework.service.impl.AdServiceImpl;
 import ru.skypro.homework.service.impl.AuthorServiceImpl;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -35,6 +37,7 @@ public class AdsController {
 
     private final AdServiceImpl adService;
     private final AuthorServiceImpl authorService;
+    private final AdImageServiceImpl adImageService;
     private final AdMapper adMapper;
 
     @Operation(summary = "Получение всех объявлений",
@@ -69,23 +72,24 @@ public class AdsController {
                     )
             }, tags = "Объявления")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<AdDto> postAd(@RequestPart CreateOrUpdateAdDto properties, @RequestPart MultipartFile image) {
-//    public ResponseEntity<AdDto> postAd(@RequestBody CreateOrUpdateAdDto properties, @RequestParam MultipartFile image) {
-//    public ResponseEntity<AdDto> postAd(@ModelAttribute("properties") CreateOrUpdateAdDto properties, @RequestParam MultipartFile image) {
-//    public ResponseEntity<AdDto> postAd(@ModelAttribute tempDto properties) {
-        if (true) {
-//            System.out.println(image.getSize());
+    public ResponseEntity<AdDto> postAd(@RequestPart CreateOrUpdateAdDto properties, @RequestPart MultipartFile image, Authentication authentication) {
+        if (authentication.isAuthenticated()) {
+            Author author = authorService.getByEmail(authentication.getName()).get();
+
             Ad ad = adMapper.toAd(properties);
-
-            Author author = new Author();
-            author.setId(1);
-
             ad.setAuthor(author);
+            Ad createdAd = adService.add(ad);
 
-//            AdDto result = adMapper.toAdDto(adService.add(ad));
-            return ResponseEntity.status(HttpStatus.CREATED)
-                    .body(
-                            adMapper.toAdDto(adService.add(ad)));
+            try {
+                AdImage adImage = adImageService.upload(createdAd, image);
+                createdAd.setAdImage(adImage);
+            } catch (IOException e) {
+                System.out.println(e.fillInStackTrace());
+            }
+
+            AdDto result = adMapper.toAdDto(createdAd);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(result);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -114,8 +118,8 @@ public class AdsController {
             if (ad.isPresent()) {
                 Author author = ad.get().getAuthor();
                 AdImage adImage = ad.get().getAdImage();
-                ExtendedAdDto result = adMapper.toExtendedAdDto(ad.get(), author, adImage);
-                return ResponseEntity.status(HttpStatus.OK).body(adMapper.toExtendedAdDto(ad.get(), author, adImage));
+                ExtendedAdDto result = adMapper.toExtendedAdDto(ad.get());
+                return ResponseEntity.status(HttpStatus.OK).body(result);
             } else {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
             }
@@ -181,14 +185,29 @@ public class AdsController {
                     )
             }, tags = "Объявления")
     @PatchMapping(value = "/{id}")
-    public ResponseEntity<ExtendedAdDto> updateAd(@PathVariable("id") Integer id, @RequestPart(required = true) CreateOrUpdateAdDto properties, Authentication authentication) {
+    public ResponseEntity<ExtendedAdDto> updateAd(@PathVariable("id") Integer id, @RequestBody(required = true) CreateOrUpdateAdDto properties, Authentication authentication) {
         if (authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.OK).build();
+            if (adService.getById(id).isPresent()) {
+                Ad foundAd = adService.getById(id).get();
+
+                Ad updateAd = adMapper.toAd(properties);
+                updateAd.setId(id);
+                updateAd.setComments(foundAd.getComments());
+                updateAd.setAuthor(foundAd.getAuthor());
+                updateAd.setAdImage(foundAd.getAdImage());
+
+                adService.updateAd(updateAd);
+
+                ExtendedAdDto result = adMapper.toExtendedAdDto(updateAd);
+
+                return ResponseEntity.status(HttpStatus.OK).body(result);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 //        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
-//        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     @Operation(summary = "Получение объявлений авторизованного пользователя",
@@ -235,16 +254,24 @@ public class AdsController {
                     )
             }, tags = "Объявления")
     @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<String[]> updateAdImage(@PathVariable("id") Integer id, @RequestPart MultipartFile image) {
-        if (true) {
-            return ResponseEntity.status(HttpStatus.OK).build();
-        } else if (false) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        } else if (false) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    public ResponseEntity<String[]> updateAdImage(@PathVariable("id") Integer id, @RequestPart MultipartFile image, Authentication authentication) {
+        if (authentication.isAuthenticated()) {
+            if (adService.getById(id).isPresent()) {
+                Ad foundAd = adService.getById(id).get();
+                AdImage adImage = new AdImage();
+                try {
+                    adImage = adImageService.upload(foundAd, image);
+                } catch (IOException e) {
+                    System.out.println(e.fillInStackTrace());
+                }
+                return ResponseEntity.status(HttpStatus.OK).body(new String[]{adImage.toString()});
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
+//            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
 

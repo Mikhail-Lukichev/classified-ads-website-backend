@@ -6,7 +6,7 @@ import java.util.Objects;
 @Entity
 public class AdImage {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String filePath;
     private Long fileSize;

@@ -4,12 +4,13 @@ import org.springframework.stereotype.Service;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.Author;
 import ru.skypro.homework.repository.AdRepository;
+import ru.skypro.homework.service.AdService;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class AdServiceImpl {
+public class AdServiceImpl implements AdService {
 
     private final AdRepository adRepository;
 
@@ -35,5 +36,10 @@ public class AdServiceImpl {
 
     public void deleteById(Integer id){
         adRepository.deleteById(id);
+    }
+
+    public Ad updateAd(Ad ad) {
+        adRepository.save(ad);
+        return ad;
     }
 }

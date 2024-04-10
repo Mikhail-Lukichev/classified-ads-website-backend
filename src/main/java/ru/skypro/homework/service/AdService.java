@@ -12,4 +12,5 @@ public interface AdService {
     Optional<Ad> getById(Integer id);
     List<Ad> getByAuthor(Author author);
     void deleteById(Integer id);
+    Ad updateAd(Ad ad);
 }

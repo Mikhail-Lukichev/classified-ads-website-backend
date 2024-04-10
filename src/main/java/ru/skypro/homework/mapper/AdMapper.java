@@ -28,7 +28,7 @@ public class AdMapper {
     public AdDto toAdDto(Ad ad) {
         AdDto result = new AdDto();
         result.setAuthor(ad.getAuthor().getId());
-        result.setImage("to be refactored");
+        result.setImage(ad.getAdImage().getFilePath());
         result.setPk(ad.getId());
         result.setPrice(ad.getPrice());
         result.setTitle(ad.getTitle());
@@ -43,15 +43,15 @@ public class AdMapper {
         return result;
     }
 
-    public ExtendedAdDto toExtendedAdDto(Ad ad, Author author, AdImage adImage) {
+    public ExtendedAdDto toExtendedAdDto(Ad ad) {
         ExtendedAdDto result = new ExtendedAdDto();
         result.setPk(ad.getId());
-        result.setAuthorFirstName(author.getFirstName());
-        result.setAuthorLastName(author.getLastName());
+        result.setAuthorFirstName(ad.getAuthor().getFirstName());
+        result.setAuthorLastName(ad.getAuthor().getLastName());
         result.setDescription(ad.getDescription());
-        result.setEmail(author.getEmail());
-        result.setImage(adImage.getFilePath());
-        result.setPhone(author.getPhone());
+        result.setEmail(ad.getAuthor().getEmail());
+        result.setImage(ad.getAdImage().getFilePath());
+        result.setPhone(ad.getAuthor().getPhone());
         result.setPrice(ad.getPrice());
         result.setTitle(ad.getTitle());
         return result;
