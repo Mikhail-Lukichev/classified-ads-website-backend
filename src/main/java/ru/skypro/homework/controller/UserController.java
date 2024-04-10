@@ -14,6 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPasswordDto;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
+import ru.skypro.homework.entity.Author;
+import ru.skypro.homework.mapper.AuthorMapper;
+import ru.skypro.homework.service.impl.AuthServiceImpl;
+import ru.skypro.homework.service.impl.AuthorServiceImpl;
 
 
 @Slf4j
@@ -22,6 +26,9 @@ import ru.skypro.homework.dto.UserDto;
 @RestController
 @RequiredArgsConstructor
 public class UserController {
+
+    private final AuthorMapper authorMapper;
+    private final AuthorServiceImpl authorService;
 
     @Operation(summary = "Обновление пароля",
             responses = {
@@ -58,7 +65,10 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserDto> getAuthenticatedUserInfo() {
         if (true) {
-            return ResponseEntity.ok().build();
+            Author author = authorService.getById(1).orElseThrow();
+            UserDto result = authorMapper.toDto(author);
+//            return ResponseEntity.ok().build();
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

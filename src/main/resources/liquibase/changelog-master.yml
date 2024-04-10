@@ -1,13 +1,11 @@
 databaseChangeLog:
-#  - include:
-#      file: liquibase/scripts/volunteers.sql
-#  - include:
-#      file: liquibase/scripts/shelters.sql
-#  - include:
-#      file: liquibase/scripts/customers.sql
-#  - include:
-#      file: liquibase/scripts/pets.sql
-#  - include:
-#      file: liquibase/scripts/adoptions.sql
-#  - include:
-#      file: liquibase/scripts/report.sql
+  - include:
+      file: liquibase/scripts/author.sql
+  - include:
+      file: liquibase/scripts/ad.sql
+  - include:
+      file: liquibase/scripts/comment.sql
+  - include:
+      file: liquibase/scripts/avatar.sql
+  - include:
+      file: liquibase/scripts/ad_image.sql

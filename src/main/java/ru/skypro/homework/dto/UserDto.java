@@ -37,4 +37,8 @@ public class UserDto {
         this.role = role;
         this.image = image;
     }
+
+    public UserDto() {
+
+    }
 }
