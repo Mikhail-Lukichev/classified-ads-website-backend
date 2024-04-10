@@ -41,16 +41,16 @@ public class AdImageServiceImpl implements AdImageService {
             bis.transferTo(bos);
         }
 
-        Optional<AdImage> adImage = adImageRepository.findByAd(ad);
-        if (adImage.isEmpty()) {
-            adImage = Optional.of(new AdImage());
-        }
-        adImage.get().setFilePath(filePath.toString());
-        adImage.get().setFileSize(file.getSize());
-        adImage.get().setMediaType(file.getContentType());
-        adImage.get().setAd(ad);
+        AdImage adImage = new AdImage();
+        adImage.setFilePath(filePath.toString());
+        adImage.setFileSize(file.getSize());
+        adImage.setMediaType(file.getContentType());
+        adImage.setAd(ad);
 
-        return adImageRepository.save(adImage.get());
+        Optional<AdImage> foundAdImage = adImageRepository.findByAd(ad);
+        foundAdImage.ifPresent(image -> adImage.setId(image.getId()));
+
+        return adImageRepository.save(adImage);
     }
 
     private String getExtension(String fileName) {
