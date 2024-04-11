@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.AdImage;
 import ru.skypro.homework.entity.Author;
+import ru.skypro.homework.entity.Avatar;
 import ru.skypro.homework.repository.AdImageRepository;
 import ru.skypro.homework.service.AdImageService;
 
@@ -55,5 +56,9 @@ public class AdImageServiceImpl implements AdImageService {
 
     private String getExtension(String fileName) {
         return fileName.substring(fileName.lastIndexOf(".") + 1);
+    }
+
+    public Optional<AdImage> getById(Integer id) {
+        return adImageRepository.findById(id);
     }
 }

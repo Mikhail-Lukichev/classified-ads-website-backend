@@ -14,6 +14,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.skypro.homework.dto.*;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.AdImage;
@@ -23,6 +24,7 @@ import ru.skypro.homework.service.impl.AdImageServiceImpl;
 import ru.skypro.homework.service.impl.AdServiceImpl;
 import ru.skypro.homework.service.impl.AuthorServiceImpl;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -50,11 +52,13 @@ public class AdsController {
             }, tags = "Объявления")
     @GetMapping()
     public ResponseEntity<AdsDto> getAds() {
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentServletMapping().toUriString();
+
         List<Ad> ads = adService.getAll();
 
         AdsDto result = new AdsDto();
         result.setCount(ads.size());
-        result.setResults(ads.stream().map(a -> adMapper.toAdDto(a)).collect(Collectors.toList()));
+        result.setResults(ads.stream().map(a -> adMapper.toAdDto(baseUrl, a)).collect(Collectors.toList()));
 
         return ResponseEntity.ok(result);
     }
@@ -74,6 +78,8 @@ public class AdsController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AdDto> postAd(@RequestPart CreateOrUpdateAdDto properties, @RequestPart MultipartFile image, Authentication authentication) {
         if (authentication.isAuthenticated()) {
+            String baseUrl = ServletUriComponentsBuilder.fromCurrentServletMapping().toUriString();
+
             Author author = authorService.getByEmail(authentication.getName()).get();
 
             Ad ad = adMapper.toAd(properties);
@@ -87,7 +93,7 @@ public class AdsController {
                 System.out.println(e.fillInStackTrace());
             }
 
-            AdDto result = adMapper.toAdDto(createdAd);
+            AdDto result = adMapper.toAdDto(baseUrl, createdAd);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
         } else {
@@ -225,10 +231,11 @@ public class AdsController {
     @GetMapping(value = "/me")
     public ResponseEntity<AdsDto> getAuthenticatedUserAds(Authentication authentication) {
         if (authentication.isAuthenticated()) {
+            String baseUrl = ServletUriComponentsBuilder.fromCurrentServletMapping().toUriString();
             String email = authentication.getName();
             Author author = authorService.getByEmail(email).get();
             List<Ad> ads = adService.getByAuthor(author);
-            return ResponseEntity.ok().body(adMapper.toAdsDto(ads));
+            return ResponseEntity.ok().body(adMapper.toAdsDto(baseUrl, ads));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

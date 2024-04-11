@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.skypro.homework.dto.NewPasswordDto;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
@@ -70,8 +71,9 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserDto> getAuthenticatedUserInfo(Authentication authentication) {
         if (authentication.isAuthenticated()) {
+            String baseUrl = ServletUriComponentsBuilder.fromCurrentServletMapping().toUriString();
             Author author = authorService.getByEmail(authentication.getName()).orElseThrow();
-            UserDto result = authorMapper.toUserDto(author);
+            UserDto result = authorMapper.toUserDto(baseUrl, author);
             return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

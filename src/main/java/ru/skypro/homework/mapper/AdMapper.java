@@ -5,30 +5,27 @@ import ru.skypro.homework.dto.AdsDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.entity.Ad;
-import ru.skypro.homework.entity.AdImage;
-import ru.skypro.homework.entity.Author;
-import ru.skypro.homework.service.impl.AuthorServiceImpl;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class AdMapper {
 
-    public AdsDto toAdsDto(List<Ad> ads) {
+    public AdsDto toAdsDto(String baseUrl, List<Ad> ads) {
         AdsDto adsDto = new AdsDto();
         adsDto.setCount(ads.size());
         adsDto.setResults(
                 ads.stream()
-                        .map(this::toAdDto)
+                        .map(a -> this.toAdDto(baseUrl,a))
                         .collect(Collectors.toList())
         );
         return adsDto;
     }
 
-    public AdDto toAdDto(Ad ad) {
+    public AdDto toAdDto(String baseUrl, Ad ad) {
         AdDto result = new AdDto();
         result.setAuthor(ad.getAuthor().getId());
-        result.setImage(ad.getAdImage().getFilePath());
+        result.setImage(baseUrl + "/image/adImage/" + ad.getId());
         result.setPk(ad.getId());
         result.setPrice(ad.getPrice());
         result.setTitle(ad.getTitle());

@@ -37,4 +37,8 @@ public class AvatarServiceImpl implements AvatarService {
 
         return avatarRepository.save(avatar);
     }
+
+    public Optional<Avatar> getById(Integer id) {
+        return avatarRepository.findById(id);
+    }
 }
