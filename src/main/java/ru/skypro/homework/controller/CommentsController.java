@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +22,8 @@ import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 @RestController
 @RequiredArgsConstructor
 public class CommentsController {
+
+    private static Logger logger = LoggerFactory.getLogger(Slf4j.class);
 
     @Operation(summary = "Получение комментариев объявления",
             responses = {
@@ -39,6 +43,8 @@ public class CommentsController {
             }, tags = "Комментарии")
     @GetMapping(value = "/{id}/comments")
     public ResponseEntity<CommentsDto> getAdComments(@PathVariable("id") int id) {
+        logger.info("CommentsController getAdComments()");
+
         if (true) {
             return ResponseEntity.ok().build();
         } else if (false) {
@@ -66,6 +72,8 @@ public class CommentsController {
             }, tags = "Комментарии")
     @PostMapping(value = "/{id}/comments")
     public ResponseEntity<CommentsDto> postAdComment(@PathVariable("id") int id, @RequestBody CreateOrUpdateCommentDto body) {
+        logger.info("CommentsController postAdComment()");
+
         if (true) {
             return ResponseEntity.ok().build();
         } else if (false) {
@@ -96,6 +104,9 @@ public class CommentsController {
             }, tags = "Комментарии")
     @DeleteMapping(value = "/{adId}/comments/{commentId}")
     public ResponseEntity<CommentsDto> deleteAdComment(@PathVariable("adId") int adId, @PathVariable("commentId") int commentId) {
+        logger.info("CommentsController deleteAdComment()");
+
+
         if (true) {
             return ResponseEntity.ok().build();
         } else if (false) {
@@ -128,6 +139,8 @@ public class CommentsController {
             }, tags = "Комментарии")
     @PatchMapping(value = "/{adId}/comments/{commentId}")
     public ResponseEntity<CommentDto> updateAdComment(@PathVariable("adId") int adId, @PathVariable("commentId") int commentId, @RequestBody CreateOrUpdateCommentDto body) {
+        logger.info("CommentsController updateAdComment()");
+
         if (true) {
             return ResponseEntity.ok().build();
         } else if (false) {

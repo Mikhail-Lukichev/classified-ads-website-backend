@@ -5,7 +5,7 @@ import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.entity.Author;
 
 public class AuthorMapper {
-    public UserDto toUserDto(String baseUrl, Author author) {
+    public UserDto toUserDto(Author author) {
         UserDto userDto = new UserDto();
         userDto.setId(author.getId());
         userDto.setEmail(author.getEmail());
@@ -13,7 +13,7 @@ public class AuthorMapper {
         userDto.setLastName(author.getLastName());
         userDto.setPhone(author.getPhone());
         userDto.setRole(author.getRole());
-        userDto.setImage(baseUrl + "/image/avatar/" + author.getId());
+        userDto.setImage("/image/avatar/" + author.getId());
         return userDto;
     }
 

@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -37,6 +39,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AdsController {
 
+    private static Logger logger = LoggerFactory.getLogger(Slf4j.class);
+
     private final AdServiceImpl adService;
     private final AuthorServiceImpl authorService;
     private final AdImageServiceImpl adImageService;
@@ -52,13 +56,13 @@ public class AdsController {
             }, tags = "Объявления")
     @GetMapping()
     public ResponseEntity<AdsDto> getAds() {
-        String baseUrl = ServletUriComponentsBuilder.fromCurrentServletMapping().toUriString();
+        logger.info("AdsController getAds()");
 
         List<Ad> ads = adService.getAll();
 
         AdsDto result = new AdsDto();
         result.setCount(ads.size());
-        result.setResults(ads.stream().map(a -> adMapper.toAdDto(baseUrl, a)).collect(Collectors.toList()));
+        result.setResults(ads.stream().map(a -> adMapper.toAdDto(a)).collect(Collectors.toList()));
 
         return ResponseEntity.ok(result);
     }
@@ -77,9 +81,9 @@ public class AdsController {
             }, tags = "Объявления")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AdDto> postAd(@RequestPart CreateOrUpdateAdDto properties, @RequestPart MultipartFile image, Authentication authentication) {
-        if (authentication.isAuthenticated()) {
-            String baseUrl = ServletUriComponentsBuilder.fromCurrentServletMapping().toUriString();
+        logger.info("AdsController postAd()");
 
+        if (authentication.isAuthenticated()) {
             Author author = authorService.getByEmail(authentication.getName()).get();
 
             Ad ad = adMapper.toAd(properties);
@@ -93,7 +97,7 @@ public class AdsController {
                 System.out.println(e.fillInStackTrace());
             }
 
-            AdDto result = adMapper.toAdDto(baseUrl, createdAd);
+            AdDto result = adMapper.toAdDto(createdAd);
 
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
         } else {
@@ -119,6 +123,8 @@ public class AdsController {
             }, tags = "Объявления")
     @GetMapping(value = "/{id}")
     public ResponseEntity<ExtendedAdDto> getAd(@PathVariable("id") Integer id, Authentication authentication) {
+        logger.info("AdsController getAd()");
+
         if (authentication.isAuthenticated()) {
             Optional<Ad> ad = adService.getById(id);
             if (ad.isPresent()) {
@@ -155,6 +161,8 @@ public class AdsController {
             }, tags = "Объявления")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<ExtendedAdDto> deleteAd(@PathVariable("id") Integer id, Authentication authentication) {
+        logger.info("AdsController deleteAd()");
+
         if (authentication.isAuthenticated()) {
             Optional<Ad> ad = adService.getById(id);
             if (ad.isPresent()) {
@@ -192,6 +200,8 @@ public class AdsController {
             }, tags = "Объявления")
     @PatchMapping(value = "/{id}")
     public ResponseEntity<ExtendedAdDto> updateAd(@PathVariable("id") Integer id, @RequestBody(required = true) CreateOrUpdateAdDto properties, Authentication authentication) {
+        logger.info("AdsController updateAd()");
+
         if (authentication.isAuthenticated()) {
             if (adService.getById(id).isPresent()) {
                 Ad foundAd = adService.getById(id).get();
@@ -230,12 +240,13 @@ public class AdsController {
             }, tags = "Объявления")
     @GetMapping(value = "/me")
     public ResponseEntity<AdsDto> getAuthenticatedUserAds(Authentication authentication) {
+        logger.info("AdsController getAuthenticatedUserAds()");
+
         if (authentication.isAuthenticated()) {
-            String baseUrl = ServletUriComponentsBuilder.fromCurrentServletMapping().toUriString();
             String email = authentication.getName();
             Author author = authorService.getByEmail(email).get();
             List<Ad> ads = adService.getByAuthor(author);
-            return ResponseEntity.ok().body(adMapper.toAdsDto(baseUrl, ads));
+            return ResponseEntity.ok().body(adMapper.toAdsDto(ads));
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -262,6 +273,8 @@ public class AdsController {
             }, tags = "Объявления")
     @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String[]> updateAdImage(@PathVariable("id") Integer id, @RequestPart MultipartFile image, Authentication authentication) {
+        logger.info("AdsController updateAdImage()");
+
         if (authentication.isAuthenticated()) {
             if (adService.getById(id).isPresent()) {
                 Ad foundAd = adService.getById(id).get();

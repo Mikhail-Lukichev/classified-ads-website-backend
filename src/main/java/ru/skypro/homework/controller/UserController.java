@@ -71,9 +71,8 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserDto> getAuthenticatedUserInfo(Authentication authentication) {
         if (authentication.isAuthenticated()) {
-            String baseUrl = ServletUriComponentsBuilder.fromCurrentServletMapping().toUriString();
             Author author = authorService.getByEmail(authentication.getName()).orElseThrow();
-            UserDto result = authorMapper.toUserDto(baseUrl, author);
+            UserDto result = authorMapper.toUserDto(author);
             return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

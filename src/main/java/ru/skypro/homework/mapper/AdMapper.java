@@ -11,21 +11,21 @@ import java.util.stream.Collectors;
 
 public class AdMapper {
 
-    public AdsDto toAdsDto(String baseUrl, List<Ad> ads) {
+    public AdsDto toAdsDto(List<Ad> ads) {
         AdsDto adsDto = new AdsDto();
         adsDto.setCount(ads.size());
         adsDto.setResults(
                 ads.stream()
-                        .map(a -> this.toAdDto(baseUrl,a))
+                        .map(a -> this.toAdDto(a))
                         .collect(Collectors.toList())
         );
         return adsDto;
     }
 
-    public AdDto toAdDto(String baseUrl, Ad ad) {
+    public AdDto toAdDto(Ad ad) {
         AdDto result = new AdDto();
         result.setAuthor(ad.getAuthor().getId());
-        result.setImage(baseUrl + "/image/adImage/" + ad.getId());
+        result.setImage("/image/adImage/" + ad.getId());
         result.setPk(ad.getId());
         result.setPrice(ad.getPrice());
         result.setTitle(ad.getTitle());
@@ -47,7 +47,7 @@ public class AdMapper {
         result.setAuthorLastName(ad.getAuthor().getLastName());
         result.setDescription(ad.getDescription());
         result.setEmail(ad.getAuthor().getEmail());
-        result.setImage(ad.getAdImage().getFilePath());
+        result.setImage("/image/adImage/" + ad.getId());
         result.setPhone(ad.getAuthor().getPhone());
         result.setPrice(ad.getPrice());
         result.setTitle(ad.getTitle());
