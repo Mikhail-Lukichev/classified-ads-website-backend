@@ -9,6 +9,5 @@ import java.util.Optional;
 
 public interface AvatarService {
     Avatar upload(Author author, MultipartFile file) throws IOException;
-
     Optional<Avatar> getById(Integer id);
 }

@@ -2,16 +2,12 @@ package ru.skypro.homework.service.impl;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skypro.homework.entity.Ad;
-import ru.skypro.homework.entity.AdImage;
 import ru.skypro.homework.entity.Author;
 import ru.skypro.homework.entity.Avatar;
 import ru.skypro.homework.repository.AvatarRepository;
 import ru.skypro.homework.service.AvatarService;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Optional;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;

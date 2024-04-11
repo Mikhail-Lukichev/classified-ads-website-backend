@@ -26,7 +26,4 @@ public class Avatar {
     @JoinColumn(name="author_id", referencedColumnName = "id")
     private Author author;
 
-    public Avatar() {
-    }
-
 }

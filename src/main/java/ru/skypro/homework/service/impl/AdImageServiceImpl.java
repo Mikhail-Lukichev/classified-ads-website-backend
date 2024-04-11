@@ -5,8 +5,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.AdImage;
-import ru.skypro.homework.entity.Author;
-import ru.skypro.homework.entity.Avatar;
 import ru.skypro.homework.repository.AdImageRepository;
 import ru.skypro.homework.service.AdImageService;
 

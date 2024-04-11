@@ -12,13 +12,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import ru.skypro.homework.dto.NewPasswordDto;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.entity.Author;
 import ru.skypro.homework.mapper.AuthorMapper;
-import ru.skypro.homework.service.impl.AuthServiceImpl;
 import ru.skypro.homework.service.impl.AuthorServiceImpl;
 import ru.skypro.homework.service.impl.AvatarServiceImpl;
 

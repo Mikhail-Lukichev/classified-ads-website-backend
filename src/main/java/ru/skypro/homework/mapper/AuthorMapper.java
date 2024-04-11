@@ -1,9 +1,11 @@
 package ru.skypro.homework.mapper;
 
+import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.entity.Author;
 
+@Component
 public class AuthorMapper {
     public UserDto toUserDto(Author author) {
         UserDto userDto = new UserDto();

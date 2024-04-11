@@ -39,7 +39,6 @@ public class AdServiceImpl implements AdService {
     }
 
     public Ad updateAd(Ad ad) {
-        adRepository.save(ad);
-        return ad;
+        return adRepository.save(ad);
     }
 }

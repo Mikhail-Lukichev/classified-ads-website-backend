@@ -1,5 +1,6 @@
 package ru.skypro.homework.mapper;
 
+import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.AdsDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
@@ -9,6 +10,7 @@ import ru.skypro.homework.entity.Ad;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Component
 public class AdMapper {
 
     public AdsDto toAdsDto(List<Ad> ads) {
@@ -16,7 +18,7 @@ public class AdMapper {
         adsDto.setCount(ads.size());
         adsDto.setResults(
                 ads.stream()
-                        .map(a -> this.toAdDto(a))
+                        .map(this::toAdDto)
                         .collect(Collectors.toList())
         );
         return adsDto;
