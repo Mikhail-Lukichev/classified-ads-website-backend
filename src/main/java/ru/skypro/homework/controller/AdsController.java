@@ -94,7 +94,8 @@ public class AdsController {
                 AdImage adImage = adImageService.upload(createdAd, image);
                 createdAd.setAdImage(adImage);
             } catch (IOException e) {
-                System.out.println(e.fillInStackTrace());
+                System.out.println("Cannot upload ad image.");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
 
             AdDto result = adMapper.toAdDto(createdAd);
@@ -205,13 +206,7 @@ public class AdsController {
         if (authentication.isAuthenticated()) {
             if (adService.getById(id).isPresent()) {
                 Ad foundAd = adService.getById(id).get();
-
-                Ad updateAd = adMapper.toAd(properties);
-                updateAd.setId(id);
-                updateAd.setComments(foundAd.getComments());
-                updateAd.setAuthor(foundAd.getAuthor());
-                updateAd.setAdImage(foundAd.getAdImage());
-
+                Ad updateAd = adService.mergeCreateOrUpdateAdDto(properties, foundAd);
                 adService.updateAd(updateAd);
 
                 ExtendedAdDto result = adMapper.toExtendedAdDto(updateAd);
@@ -282,7 +277,8 @@ public class AdsController {
                 try {
                     adImage = adImageService.upload(foundAd, image);
                 } catch (IOException e) {
-                    System.out.println(e.fillInStackTrace());
+                    System.out.println("Cannot upload ad image.");
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
                 }
                 return ResponseEntity.status(HttpStatus.OK).body(new String[]{adImage.toString()});
             } else {

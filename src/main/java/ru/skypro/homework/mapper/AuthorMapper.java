@@ -1,5 +1,6 @@
 package ru.skypro.homework.mapper;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
@@ -7,6 +8,10 @@ import ru.skypro.homework.entity.Author;
 
 @Component
 public class AuthorMapper {
+
+    @Value("${avatar.controller.path}")
+    private String avatarPath;
+
     public UserDto toUserDto(Author author) {
         UserDto userDto = new UserDto();
         userDto.setId(author.getId());
@@ -15,7 +20,7 @@ public class AuthorMapper {
         userDto.setLastName(author.getLastName());
         userDto.setPhone(author.getPhone());
         userDto.setRole(author.getRole());
-        userDto.setImage("/image/avatar/" + author.getId());
+        userDto.setImage(avatarPath + author.getId());
         return userDto;
     }
 

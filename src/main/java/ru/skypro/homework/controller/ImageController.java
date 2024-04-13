@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.entity.AdImage;
 import ru.skypro.homework.entity.Avatar;
+import ru.skypro.homework.exception.InvalidImageStreamException;
 import ru.skypro.homework.service.AdImageService;
 import ru.skypro.homework.service.AvatarService;
 
@@ -87,7 +88,7 @@ public class ImageController {
                 response.setContentLength(adImage.get().getFileSize().intValue());
                 is.transferTo(os);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new InvalidImageStreamException();
             }
 
             return ResponseEntity.ok().build();

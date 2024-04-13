@@ -16,6 +16,7 @@ import ru.skypro.homework.dto.NewPasswordDto;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.entity.Author;
+import ru.skypro.homework.exception.UserNotFoundException;
 import ru.skypro.homework.mapper.AuthorMapper;
 import ru.skypro.homework.service.impl.AuthorServiceImpl;
 import ru.skypro.homework.service.impl.AvatarServiceImpl;
@@ -69,7 +70,7 @@ public class UserController {
     @GetMapping("/me")
     public ResponseEntity<UserDto> getAuthenticatedUserInfo(Authentication authentication) {
         if (authentication.isAuthenticated()) {
-            Author author = authorService.getByEmail(authentication.getName()).orElseThrow();
+            Author author = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
             UserDto result = authorMapper.toUserDto(author);
             return ResponseEntity.ok(result);
         } else {
@@ -92,7 +93,7 @@ public class UserController {
     @PatchMapping("/me")
     public ResponseEntity<UpdateUserDto> updateAuthenticatedUser(@RequestBody UpdateUserDto updateUserDto, Authentication authentication) {
         if (authentication.isAuthenticated()) {
-            Author foundAuthor = authorService.getByEmail(authentication.getName()).orElseThrow();
+            Author foundAuthor = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
             Author updateAuthor = authorMapper.toAuthor(updateUserDto);
 
             foundAuthor.setFirstName(updateAuthor.getFirstName());
@@ -121,11 +122,12 @@ public class UserController {
     @PatchMapping(value = "/me/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateAuthenticatedUserImage(@RequestParam MultipartFile image, Authentication authentication) {
         if (authentication.isAuthenticated()) {
-            Author author = authorService.getByEmail(authentication.getName()).orElseThrow();
+            Author author = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
             try {
                 avatarService.upload(author, image);
             } catch (IOException e) {
-                System.out.println(e.fillInStackTrace());
+                System.out.println("Cannot upload avatar image.");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
             }
             return ResponseEntity.ok().build();
         } else {

@@ -1,5 +1,6 @@
 package ru.skypro.homework.mapper;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.AdsDto;
@@ -12,6 +13,9 @@ import java.util.stream.Collectors;
 
 @Component
 public class AdMapper {
+
+    @Value("${adImage.controller.path}")
+    private String adImagesPath;
 
     public AdsDto toAdsDto(List<Ad> ads) {
         AdsDto adsDto = new AdsDto();
@@ -27,7 +31,7 @@ public class AdMapper {
     public AdDto toAdDto(Ad ad) {
         AdDto result = new AdDto();
         result.setAuthor(ad.getAuthor().getId());
-        result.setImage("/image/adImage/" + ad.getId());
+        result.setImage(adImagesPath + ad.getId());
         result.setPk(ad.getId());
         result.setPrice(ad.getPrice());
         result.setTitle(ad.getTitle());
@@ -49,7 +53,7 @@ public class AdMapper {
         result.setAuthorLastName(ad.getAuthor().getLastName());
         result.setDescription(ad.getDescription());
         result.setEmail(ad.getAuthor().getEmail());
-        result.setImage("/image/adImage/" + ad.getId());
+        result.setImage(adImagesPath + ad.getId());
         result.setPhone(ad.getAuthor().getPhone());
         result.setPrice(ad.getPrice());
         result.setTitle(ad.getTitle());

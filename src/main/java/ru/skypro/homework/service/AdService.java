@@ -1,5 +1,6 @@
 package ru.skypro.homework.service;
 
+import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.Author;
 
@@ -13,4 +14,5 @@ public interface AdService {
     List<Ad> getByAuthor(Author author);
     void deleteById(Integer id);
     Ad updateAd(Ad ad);
+    Ad mergeCreateOrUpdateAdDto(CreateOrUpdateAdDto properties, Ad foundAd);
 }

@@ -1,8 +1,10 @@
 package ru.skypro.homework.service.impl;
 
 import org.springframework.stereotype.Service;
+import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.Author;
+import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.service.AdService;
 
@@ -12,9 +14,11 @@ import java.util.Optional;
 @Service
 public class AdServiceImpl implements AdService {
 
+    private final AdMapper adMapper;
     private final AdRepository adRepository;
 
-    public AdServiceImpl(AdRepository adRepository) {
+    public AdServiceImpl(AdMapper adMapper, AdRepository adRepository) {
+        this.adMapper = adMapper;
         this.adRepository = adRepository;
     }
 
@@ -40,5 +44,14 @@ public class AdServiceImpl implements AdService {
 
     public Ad updateAd(Ad ad) {
         return adRepository.save(ad);
+    }
+
+    public Ad mergeCreateOrUpdateAdDto(CreateOrUpdateAdDto properties, Ad foundAd) {
+        Ad updateAd = adMapper.toAd(properties);
+        updateAd.setId(foundAd.getId());
+        updateAd.setComments(foundAd.getComments());
+        updateAd.setAuthor(foundAd.getAuthor());
+        updateAd.setAdImage(foundAd.getAdImage());
+        return updateAd;
     }
 }
