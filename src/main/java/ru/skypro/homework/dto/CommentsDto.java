@@ -7,10 +7,10 @@ import java.util.List;
 
 @Data
 @Schema
-public class Comments {
+public class CommentsDto {
 
     @Schema(description = "общее количество комментариев")
     private Integer count;
 
-    private List<Comment> results;
+    private List<CommentDto> results;
 }

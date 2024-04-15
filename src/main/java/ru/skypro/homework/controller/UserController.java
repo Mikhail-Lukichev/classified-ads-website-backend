@@ -4,18 +4,36 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.skypro.homework.dto.NewPassword;
-import ru.skypro.homework.dto.UpdateUser;
-import ru.skypro.homework.dto.User;
+import ru.skypro.homework.dto.NewPasswordDto;
+import ru.skypro.homework.dto.UpdateUserDto;
+import ru.skypro.homework.dto.UserDto;
+import ru.skypro.homework.entity.Author;
+import ru.skypro.homework.exception.UserNotFoundException;
+import ru.skypro.homework.mapper.AuthorMapper;
+import ru.skypro.homework.service.impl.AuthorServiceImpl;
+import ru.skypro.homework.service.impl.AvatarServiceImpl;
 
+import java.io.IOException;
+
+
+@Slf4j
+@CrossOrigin(value = "http://localhost:3000")
 @RequestMapping("users")
 @RestController
+@RequiredArgsConstructor
 public class UserController {
+
+    private final AuthorMapper authorMapper;
+    private final AuthorServiceImpl authorService;
+    private final AvatarServiceImpl avatarService;
 
     @Operation(summary = "Обновление пароля",
             responses = {
@@ -29,7 +47,7 @@ public class UserController {
                     )
             }, tags = "Пользователи")
     @PostMapping("/set_password")
-    public ResponseEntity<?> updatePassword(@RequestBody NewPassword updatePassword) {
+    public ResponseEntity<?> updatePassword(@RequestBody NewPasswordDto updatePassword) {
         if (true) {
             return ResponseEntity.ok().build();
         } else {
@@ -42,7 +60,7 @@ public class UserController {
                     @ApiResponse(
                             responseCode = "200",
                             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = User.class))
+                                    schema = @Schema(implementation = UserDto.class))
                     ),
                     @ApiResponse(
                             responseCode = "401",
@@ -50,9 +68,11 @@ public class UserController {
                     )
             }, tags = "Пользователи")
     @GetMapping("/me")
-    public ResponseEntity<User> getAuthenticatedUserInfo() {
-        if (true) {
-            return ResponseEntity.ok().build();
+    public ResponseEntity<UserDto> getAuthenticatedUserInfo(Authentication authentication) {
+        if (authentication.isAuthenticated()) {
+            Author author = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
+            UserDto result = authorMapper.toUserDto(author);
+            return ResponseEntity.ok(result);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -63,7 +83,7 @@ public class UserController {
                     @ApiResponse(
                             responseCode = "200",
                             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = UpdateUser.class))
+                                    schema = @Schema(implementation = UpdateUserDto.class))
                     ),
                     @ApiResponse(
                             responseCode = "401",
@@ -71,9 +91,18 @@ public class UserController {
                     )
             }, tags = "Пользователи")
     @PatchMapping("/me")
-    public ResponseEntity<?> updateAuthenticatedUser(@RequestBody UpdateUser updateUser) {
-        if (true) {
-            return ResponseEntity.ok().build();
+    public ResponseEntity<UpdateUserDto> updateAuthenticatedUser(@RequestBody UpdateUserDto updateUserDto, Authentication authentication) {
+        if (authentication.isAuthenticated()) {
+            Author foundAuthor = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
+            Author updateAuthor = authorMapper.toAuthor(updateUserDto);
+
+            foundAuthor.setFirstName(updateAuthor.getFirstName());
+            foundAuthor.setLastName(updateAuthor.getLastName());
+            foundAuthor.setPhone(updateAuthor.getPhone());
+
+            UpdateUserDto result = authorMapper.toUpdateUserDto(authorService.add(foundAuthor));
+
+            return ResponseEntity.ok().body(result);
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -91,8 +120,15 @@ public class UserController {
                     )
             }, tags = "Пользователи")
     @PatchMapping(value = "/me/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> updateAuthenticatedUserImage(@RequestParam MultipartFile image) {
-        if (true) {
+    public ResponseEntity<?> updateAuthenticatedUserImage(@RequestParam MultipartFile image, Authentication authentication) {
+        if (authentication.isAuthenticated()) {
+            Author author = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
+            try {
+                avatarService.upload(author, image);
+            } catch (IOException e) {
+                System.out.println("Cannot upload avatar image.");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            }
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

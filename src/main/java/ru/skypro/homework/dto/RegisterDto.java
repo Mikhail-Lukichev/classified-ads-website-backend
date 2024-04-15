@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Schema
-public class Register {
+public class RegisterDto {
 
     @Schema(minLength = 4, maxLength = 32, description = "логин")
     private String username;

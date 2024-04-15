@@ -7,10 +7,11 @@ import java.util.List;
 
 @Data
 @Schema
-public class Ads {
+public class AdsDto {
 
     @Schema(description = "общее количество объявлений")
     private Integer count;
 
-    List<Ad> results;
+    List<AdDto> results;
+
 }

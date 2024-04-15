@@ -2,10 +2,11 @@ package ru.skypro.homework.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 @Data
-@Schema
-public class CreateOrUpdateAd {
+@Schema(type = "string",format = "binary")
+public class CreateOrUpdateAdDto {
 
     @Schema(minLength = 4, maxLength = 32, description = "заголовок объявления")
     private String title;

@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @Schema
-public class CreateOrUpdateComment {
+public class CreateOrUpdateCommentDto {
 
     @Schema(minLength = 8, maxLength = 64, description = "текст комментария", required = true)
     private String text;
