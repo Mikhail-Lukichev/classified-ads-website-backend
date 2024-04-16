@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.skypro.homework.dto.ExtendedAdDto;
 import ru.skypro.homework.entity.AdImage;
 import ru.skypro.homework.entity.Avatar;
+import ru.skypro.homework.exception.AdImageNotFoundException;
+import ru.skypro.homework.exception.AvatarNotFoundException;
 import ru.skypro.homework.exception.InvalidImageStreamException;
 import ru.skypro.homework.service.AdImageService;
 import ru.skypro.homework.service.AvatarService;
@@ -51,15 +53,11 @@ public class ImageController {
     @GetMapping(value = "avatar/{id}")
     @ResponseBody
     public ResponseEntity<byte[]> getAvatarImage(@PathVariable("id") Integer id) {
-        Optional<Avatar> avatar = avatarService.getById(id);
-        if (avatar.isPresent()) {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.parseMediaType(avatar.get().getMediaType()));
-            headers.setContentLength(avatar.get().getFileSize());
-            return ResponseEntity.status(HttpStatus.OK).headers(headers).body(avatar.get().getData());
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        }
+        Avatar avatar = avatarService.getById(id).orElseThrow(AvatarNotFoundException::new);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType(avatar.getMediaType()));
+        headers.setContentLength(avatar.getFileSize());
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(avatar.getData());
     }
 
     @Operation(summary = "Получение фотографии объявления",
@@ -77,23 +75,17 @@ public class ImageController {
     @GetMapping(value = "adImage/{id}")
     @ResponseBody
     public ResponseEntity<byte[]> getAdImage(@PathVariable("id") Integer id, HttpServletResponse response) {
-        Optional<AdImage> adImage = adImageService.getById(id);
-        if (adImage.isPresent()) {
-            Path path = Path.of(adImage.get().getFilePath());
-
-            try (InputStream is = Files.newInputStream(path);
-                 OutputStream os = response.getOutputStream();
-            ) {
-                response.setContentType(adImage.get().getMediaType());
-                response.setContentLength(adImage.get().getFileSize().intValue());
-                is.transferTo(os);
-            } catch (IOException e) {
-                throw new InvalidImageStreamException();
-            }
-
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        AdImage adImage = adImageService.getById(id).orElseThrow(AdImageNotFoundException::new);
+        Path path = Path.of(adImage.getFilePath());
+        try (InputStream is = Files.newInputStream(path);
+             OutputStream os = response.getOutputStream();
+        ) {
+            response.setContentType(adImage.getMediaType());
+            response.setContentLength(adImage.getFileSize().intValue());
+            is.transferTo(os);
+        } catch (IOException e) {
+            throw new InvalidImageStreamException();
         }
+        return ResponseEntity.ok().build();
     }
 }

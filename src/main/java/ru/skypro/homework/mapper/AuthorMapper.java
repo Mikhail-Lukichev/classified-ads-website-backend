@@ -1,7 +1,9 @@
 package ru.skypro.homework.mapper;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import ru.skypro.homework.dto.RegisterDto;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.entity.Author;
@@ -37,6 +39,17 @@ public class AuthorMapper {
         author.setFirstName(updateUserDto.getFirstName());
         author.setLastName(updateUserDto.getLastName());
         author.setPhone(updateUserDto.getPhone());
+        return author;
+    }
+
+    public Author toAuthor(RegisterDto dto) {
+        Author author = new Author();
+        author.setEmail(dto.getUsername());
+        author.setPassword(dto.getPassword());
+        author.setFirstName(dto.getFirstName());
+        author.setLastName(dto.getLastName());
+        author.setPhone(dto.getPhone());
+        author.setRole(dto.getRole());
         return author;
     }
 }

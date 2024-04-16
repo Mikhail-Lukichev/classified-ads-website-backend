@@ -18,6 +18,7 @@ public class Author {
     private String firstName;
     private String lastName;
     private String phone;
+    @Enumerated(EnumType.STRING)
     private Role role;
 
     @OneToMany(mappedBy = "author")

@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ru.skypro.homework.dto.CommentDto;
@@ -19,6 +20,9 @@ import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.Author;
 import ru.skypro.homework.entity.Comment;
+import ru.skypro.homework.exception.AdNotFoundException;
+import ru.skypro.homework.exception.CommentNotFoundException;
+import ru.skypro.homework.exception.UserNotFoundException;
 import ru.skypro.homework.mapper.CommentMapper;
 import ru.skypro.homework.service.AdService;
 import ru.skypro.homework.service.AuthorService;
@@ -60,17 +64,10 @@ public class CommentsController {
     @GetMapping(value = "/{id}/comments")
     public ResponseEntity<CommentsDto> getAdComments(@PathVariable("id") int id, Authentication authentication) {
         logger.info("CommentsController getAdComments()");
-        if (authentication.isAuthenticated()) {
-            Optional<Ad> ad = adService.getById(id);
-            if (ad.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-
-            List<Comment> comments = commentService.getAllByAd(ad.get());
-            CommentsDto result = commentMapper.toCommentsDto(comments);
-
-            return ResponseEntity.ok().body(result);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        Ad ad = adService.getById(id).orElseThrow(() -> new AdNotFoundException());
+        List<Comment> comments = commentService.getAllByAd(ad);
+        CommentsDto result = commentMapper.toCommentsDto(comments);
+        return ResponseEntity.ok().body(result);
     }
 
     @Operation(summary = "Добавление комментария к объявлению",
@@ -92,25 +89,15 @@ public class CommentsController {
     @PostMapping(value = "/{id}/comments")
     public ResponseEntity<CommentDto> postAdComment(@PathVariable("id") int id, @RequestBody CreateOrUpdateCommentDto body, Authentication authentication) {
         logger.info("CommentsController postAdComment()");
-        if (authentication.isAuthenticated()) {
-            Optional<Ad> ad = adService.getById(id);
-            if (ad.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-
-            Optional<Author> author = authorService.getByEmail(authentication.getName());
-            if (author.isEmpty()) throw new RuntimeException();
-
-            Comment newComment = commentMapper.toComment(body);
-            newComment.setAd(ad.get());
-            newComment.setAuthor(author.get());
-            newComment.setCreatedAt(System.currentTimeMillis());
-
-            Comment createdComment = commentService.add(newComment);
-            CommentDto result = commentMapper.toCommentDto(createdComment);
-
-            return ResponseEntity.ok().body(result);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        Ad ad = adService.getById(id).orElseThrow(() -> new AdNotFoundException());
+        Author author = authorService.getByEmail(authentication.getName()).orElseThrow(() -> new UserNotFoundException());
+        Comment newComment = commentMapper.toComment(body);
+        newComment.setAd(ad);
+        newComment.setAuthor(author);
+        newComment.setCreatedAt(System.currentTimeMillis());
+        Comment createdComment = commentService.add(newComment);
+        CommentDto result = commentMapper.toCommentDto(createdComment);
+        return ResponseEntity.ok().body(result);
     }
 
     @Operation(summary = "Удаление комментария",
@@ -133,27 +120,15 @@ public class CommentsController {
                     )
             }, tags = "Комментарии")
     @DeleteMapping(value = "/{adId}/comments/{commentId}")
+    @PreAuthorize("@userSecurity.isCommentAuthor(#commentId) or hasAuthority('ADMIN')")
     public ResponseEntity<CommentsDto> deleteAdComment(@PathVariable("adId") int adId, @PathVariable("commentId") int commentId, Authentication authentication) {
         logger.info("CommentsController deleteAdComment()");
-
-        if (authentication.isAuthenticated()) {
-            Optional<Comment> comment = commentService.getById(commentId);
-            if (comment.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-
-            Optional<Ad> ad = adService.getById(adId);
-            if (ad.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-
-            commentService.delete(comment.get());
-
-            List<Comment> comments = commentService.getAllByAd(ad.get());
-            CommentsDto result = commentMapper.toCommentsDto(comments);
-
-            return ResponseEntity.ok().body(result);
-        } else {
-
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        Ad ad = adService.getById(adId).orElseThrow(() -> new AdNotFoundException());
+        Comment comment = commentService.getById(commentId).orElseThrow(() -> new CommentNotFoundException());
+        commentService.delete(comment);
+        List<Comment> comments = commentService.getAllByAd(ad);
+        CommentsDto result = commentMapper.toCommentsDto(comments);
+        return ResponseEntity.ok().body(result);
     }
 
     @Operation(summary = "Обновление комментария",
@@ -176,26 +151,15 @@ public class CommentsController {
                     )
             }, tags = "Комментарии")
     @PatchMapping(value = "/{adId}/comments/{commentId}")
+    @PreAuthorize("@userSecurity.isCommentAuthor(#commentId) or hasAuthority('ADMIN')")
     public ResponseEntity<CommentDto> updateAdComment(@PathVariable("adId") int adId, @PathVariable("commentId") int commentId, @RequestBody CreateOrUpdateCommentDto body, Authentication authentication) {
         logger.info("CommentsController updateAdComment()");
-        if (authentication.isAuthenticated()) {
-            Optional<Comment> comment = commentService.getById(commentId);
-            if (comment.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-
-            Optional<Ad> ad = adService.getById(adId);
-            if (ad.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-
-            Comment updateComment = commentMapper.toComment(body);
-            comment.get().setText(updateComment.getText());
-
-            Comment result = commentService.add(comment.get());
-            CommentDto resultDto = commentMapper.toCommentDto(result);
-
-            return ResponseEntity.ok().body(resultDto);
-        } else {
-
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        Ad ad = adService.getById(adId).orElseThrow(() -> new AdNotFoundException());
+        Comment comment = commentService.getById(commentId).orElseThrow(() -> new CommentNotFoundException());
+        Comment updateComment = commentMapper.toComment(body);
+        comment.setText(updateComment.getText());
+        Comment result = commentService.add(comment);
+        CommentDto resultDto = commentMapper.toCommentDto(result);
+        return ResponseEntity.ok().body(resultDto);
     }
 }
