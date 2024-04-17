@@ -54,10 +54,6 @@ public class AdsController {
                             responseCode = "200",
                             content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
                                     schema = @Schema(implementation = AdsDto.class))
-                    ),
-                    @ApiResponse(
-                            responseCode = "401",
-                            content = @Content(schema = @Schema(implementation = Void.class))
                     )
             }, tags = "Объявления")
     @GetMapping()

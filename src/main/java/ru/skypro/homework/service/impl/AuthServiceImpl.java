@@ -19,7 +19,6 @@ import static ru.skypro.homework.dto.Role.USER;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-//    private final UserDetailsManager manager;
     private final PasswordEncoder encoder;
     private final DatabaseUserDetailsService manager;
     private final AuthorService authorService;
@@ -35,9 +34,6 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public boolean login(String userName, String password) {
-//        if (!manager.userExists(userName)) {
-//            return false;
-//        }
         UserDetails userDetails = manager.loadUserByUsername(userName);
         return encoder.matches(password, userDetails.getPassword());
     }
