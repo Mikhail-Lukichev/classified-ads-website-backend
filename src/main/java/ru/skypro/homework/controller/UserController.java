@@ -96,20 +96,16 @@ public class UserController {
     @PatchMapping("/me")
     public ResponseEntity<UpdateUserDto> updateAuthenticatedUser(@RequestBody UpdateUserDto updateUserDto, Authentication authentication) {
         logger.info("UserController updateAuthenticatedUser()");
-        if (authentication.isAuthenticated()) {
-            Author foundAuthor = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
-            Author updateAuthor = authorMapper.toAuthor(updateUserDto);
+        Author foundAuthor = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
+        Author updateAuthor = authorMapper.toAuthor(updateUserDto);
 
-            foundAuthor.setFirstName(updateAuthor.getFirstName());
-            foundAuthor.setLastName(updateAuthor.getLastName());
-            foundAuthor.setPhone(updateAuthor.getPhone());
+        foundAuthor.setFirstName(updateAuthor.getFirstName());
+        foundAuthor.setLastName(updateAuthor.getLastName());
+        foundAuthor.setPhone(updateAuthor.getPhone());
 
-            UpdateUserDto result = authorMapper.toUpdateUserDto(authorService.add(foundAuthor));
+        UpdateUserDto result = authorMapper.toUpdateUserDto(authorService.add(foundAuthor));
 
-            return ResponseEntity.ok().body(result);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        return ResponseEntity.ok().body(result);
     }
 
     @Operation(summary = "Обновление аватара авторизованного пользователя",
@@ -126,18 +122,14 @@ public class UserController {
     @PatchMapping(value = "/me/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateAuthenticatedUserImage(@RequestParam MultipartFile image, Authentication authentication) {
         logger.info("UserController updateAuthenticatedUserImage()");
-        if (authentication.isAuthenticated()) {
-            Author author = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
-            try {
-                avatarService.upload(author, image);
-            } catch (IOException e) {
-                System.out.println("Cannot upload avatar image.");
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            }
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        Author author = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
+        try {
+            avatarService.upload(author, image);
+        } catch (IOException e) {
+            System.out.println("Cannot upload avatar image.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+        return ResponseEntity.ok().build();
     }
 
 
