@@ -6,18 +6,22 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.skypro.homework.dto.ExtendedAdDto;
+import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.AdImage;
+import ru.skypro.homework.entity.Author;
 import ru.skypro.homework.entity.Avatar;
-import ru.skypro.homework.exception.AdImageNotFoundException;
-import ru.skypro.homework.exception.AvatarNotFoundException;
-import ru.skypro.homework.exception.InvalidImageStreamException;
+import ru.skypro.homework.exception.*;
 import ru.skypro.homework.service.AdImageService;
+import ru.skypro.homework.service.AdService;
+import ru.skypro.homework.service.AuthorService;
 import ru.skypro.homework.service.AvatarService;
 
 import javax.servlet.http.HttpServletResponse;
@@ -35,8 +39,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ImageController {
 
+    private static Logger logger = LoggerFactory.getLogger(Slf4j.class);
+
     private final AvatarService avatarService;
     private final AdImageService adImageService;
+    private final AuthorService authorService;
+    private final AdService adService;
 
     @Operation(summary = "Получение аватара",
             responses = {
@@ -50,10 +58,12 @@ public class ImageController {
                             content = @Content(schema = @Schema(implementation = Void.class))
                     )
             }, tags = "Изображения")
-    @GetMapping(value = "avatar/{id}")
+    @GetMapping(value = "/avatar/{id}")
     @ResponseBody
     public ResponseEntity<byte[]> getAvatarImage(@PathVariable("id") Integer id) {
-        Avatar avatar = avatarService.getById(id).orElseThrow(AvatarNotFoundException::new);
+        logger.info("ImageController getAvatarImage()");
+        Author author = authorService.getById(id).orElseThrow(UserNotFoundException::new);
+        Avatar avatar = avatarService.getByAuthor(author).orElseThrow(AvatarNotFoundException::new);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType(avatar.getMediaType()));
         headers.setContentLength(avatar.getFileSize());
@@ -72,10 +82,12 @@ public class ImageController {
                             content = @Content(schema = @Schema(implementation = Void.class))
                     )
             }, tags = "Изображения")
-    @GetMapping(value = "adImage/{id}")
+    @GetMapping(value = "/adImage/{id}")
     @ResponseBody
     public ResponseEntity<byte[]> getAdImage(@PathVariable("id") Integer id, HttpServletResponse response) {
-        AdImage adImage = adImageService.getById(id).orElseThrow(AdImageNotFoundException::new);
+        logger.info("ImageController getAvatarImage()");
+        Ad ad = adService.getById(id).orElseThrow(AdNotFoundException::new);
+        AdImage adImage = adImageService.getByAd(ad).orElseThrow(AdImageNotFoundException::new);
         Path path = Path.of(adImage.getFilePath());
         try (InputStream is = Files.newInputStream(path);
              OutputStream os = response.getOutputStream();

@@ -37,4 +37,8 @@ public class AvatarServiceImpl implements AvatarService {
     public Optional<Avatar> getById(Integer id) {
         return avatarRepository.findById(id);
     }
+
+    public Optional<Avatar> getByAuthor(Author author) {
+        return avatarRepository.findByAuthor(author);
+    }
 }

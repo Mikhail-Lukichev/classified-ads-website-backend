@@ -59,4 +59,8 @@ public class AdImageServiceImpl implements AdImageService {
     public Optional<AdImage> getById(Integer id) {
         return adImageRepository.findById(id);
     }
+
+    public Optional<AdImage> getByAd(Ad ad) {
+        return adImageRepository.findByAd(ad);
+    }
 }

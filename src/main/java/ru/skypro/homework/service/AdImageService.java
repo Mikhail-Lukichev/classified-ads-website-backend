@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface AdImageService {
     AdImage upload(Ad ad, MultipartFile file) throws IOException;
     Optional<AdImage> getById(Integer id);
+    Optional<AdImage> getByAd(Ad ad);
 }
