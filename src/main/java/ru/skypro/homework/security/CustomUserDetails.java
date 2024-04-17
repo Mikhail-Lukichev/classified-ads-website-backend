@@ -21,8 +21,6 @@ public class CustomUserDetails implements UserDetails {
         this.author = author;
     }
 
-
-
     @Override
     public String getUsername() {
         return author.getEmail();

@@ -24,11 +24,7 @@ public class DatabaseUserDetailsService implements UserDetailsService {
                 () -> new UsernameNotFoundException(username + " not found")
         );
 
-//        CustomUserDetails customUserDetails = new CustomUserDetails();
-//        customUserDetails.setUser(author);
         List<SimpleGrantedAuthority> grantedAuthorities = authorService.getAuthorities(author).stream().map(authority -> new SimpleGrantedAuthority(authority)).collect(Collectors.toList());
-//        List<SimpleGrantedAuthority> grantedAuthorities = author.getAuthorities().map(authority -> new SimpleGrantedAuthority(authority)).collect(Collectors.toList()); // (1)
         return new org.springframework.security.core.userdetails.User(author.getEmail(), author.getPassword(), grantedAuthorities);
-//        return customUserDetails;
     }
 }

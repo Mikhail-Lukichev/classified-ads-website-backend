@@ -6,8 +6,6 @@ import ru.skypro.homework.entity.Author;
 import ru.skypro.homework.exception.UserNotFoundException;
 import ru.skypro.homework.service.AuthorService;
 
-import java.util.Optional;
-
 @Component
 public class UserSecurity {
 
