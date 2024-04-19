@@ -63,7 +63,7 @@ public class CommentsController {
             }, tags = "Комментарии")
     @GetMapping(value = "/{id}/comments")
     public ResponseEntity<CommentsDto> getAdComments(@PathVariable("id") int id, Authentication authentication) {
-        logger.info("CommentsController getAdComments()");
+        logger.debug("CommentsController getAdComments()");
         Ad ad = adService.getById(id).orElseThrow(() -> new AdNotFoundException());
         List<Comment> comments = commentService.getAllByAd(ad);
         CommentsDto result = commentMapper.toCommentsDto(comments);
@@ -88,7 +88,7 @@ public class CommentsController {
             }, tags = "Комментарии")
     @PostMapping(value = "/{id}/comments")
     public ResponseEntity<CommentDto> postAdComment(@PathVariable("id") int id, @RequestBody CreateOrUpdateCommentDto body, Authentication authentication) {
-        logger.info("CommentsController postAdComment()");
+        logger.debug("CommentsController postAdComment()");
         Ad ad = adService.getById(id).orElseThrow(() -> new AdNotFoundException());
         Author author = authorService.getByEmail(authentication.getName()).orElseThrow(() -> new UserNotFoundException());
         Comment newComment = commentMapper.toComment(body);
@@ -122,7 +122,7 @@ public class CommentsController {
     @DeleteMapping(value = "/{adId}/comments/{commentId}")
     @PreAuthorize("@userSecurity.isCommentAuthor(#commentId) or hasAuthority('ADMIN')")
     public ResponseEntity<CommentsDto> deleteAdComment(@PathVariable("adId") int adId, @PathVariable("commentId") int commentId, Authentication authentication) {
-        logger.info("CommentsController deleteAdComment()");
+        logger.debug("CommentsController deleteAdComment()");
         Ad ad = adService.getById(adId).orElseThrow(() -> new AdNotFoundException());
         Comment comment = commentService.getById(commentId).orElseThrow(() -> new CommentNotFoundException());
         commentService.delete(comment);
@@ -153,7 +153,7 @@ public class CommentsController {
     @PatchMapping(value = "/{adId}/comments/{commentId}")
     @PreAuthorize("@userSecurity.isCommentAuthor(#commentId) or hasAuthority('ADMIN')")
     public ResponseEntity<CommentDto> updateAdComment(@PathVariable("adId") int adId, @PathVariable("commentId") int commentId, @RequestBody CreateOrUpdateCommentDto body, Authentication authentication) {
-        logger.info("CommentsController updateAdComment()");
+        logger.debug("CommentsController updateAdComment()");
         Ad ad = adService.getById(adId).orElseThrow(() -> new AdNotFoundException());
         Comment comment = commentService.getById(commentId).orElseThrow(() -> new CommentNotFoundException());
         Comment updateComment = commentMapper.toComment(body);

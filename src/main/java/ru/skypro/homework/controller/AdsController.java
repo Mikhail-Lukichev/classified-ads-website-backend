@@ -58,7 +58,7 @@ public class AdsController {
             }, tags = "Объявления")
     @GetMapping()
     public ResponseEntity<AdsDto> getAds() {
-        logger.info("AdsController getAds()");
+        logger.debug("AdsController getAds()");
         List<Ad> ads = adService.getAll();
         AdsDto result = new AdsDto();
         result.setCount(ads.size());
@@ -80,7 +80,7 @@ public class AdsController {
             }, tags = "Объявления")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AdDto> postAd(@RequestPart CreateOrUpdateAdDto properties, @RequestPart MultipartFile image, Authentication authentication) {
-        logger.info("AdsController postAd()");
+        logger.debug("AdsController postAd()");
         Author author = authorService.getByEmail(authentication.getName()).get();
         Ad ad = adMapper.toAd(properties);
         ad.setAuthor(author);
@@ -114,7 +114,7 @@ public class AdsController {
             }, tags = "Объявления")
     @GetMapping(value = "/{id}")
     public ResponseEntity<ExtendedAdDto> getAd(@PathVariable("id") Integer id, Authentication authentication) {
-        logger.info("AdsController getAd()");
+        logger.debug("AdsController getAd()");
         Ad ad = adService.getById(id).orElseThrow(() -> new AdNotFoundException());
         Author author = ad.getAuthor();
         AdImage adImage = ad.getAdImage();
@@ -144,7 +144,7 @@ public class AdsController {
     @DeleteMapping(value = "/{id}")
     @PreAuthorize("@userSecurity.isAdAuthor(#id) or hasAuthority('ADMIN')")
     public ResponseEntity<ExtendedAdDto> deleteAd(@PathVariable("id") Integer id, Authentication authentication) {
-        logger.info("AdsController deleteAd()");
+        logger.debug("AdsController deleteAd()");
         Ad ad = adService.getById(id).orElseThrow(() -> new AdNotFoundException());
         adService.deleteById(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
@@ -173,7 +173,7 @@ public class AdsController {
     @PatchMapping(value = "/{id}")
     @PreAuthorize("@userSecurity.isAdAuthor(#id) or hasAuthority('ADMIN')")
     public ResponseEntity<ExtendedAdDto> updateAd(@PathVariable("id") Integer id, @RequestBody(required = true) CreateOrUpdateAdDto properties, Authentication authentication) {
-        logger.info("AdsController updateAd()");
+        logger.debug("AdsController updateAd()");
         Ad ad = adService.getById(id).orElseThrow(() -> new AdNotFoundException());
         Ad updateAd = adService.mergeCreateOrUpdateAdDto(properties, ad);
         adService.updateAd(updateAd);
@@ -195,7 +195,7 @@ public class AdsController {
             }, tags = "Объявления")
     @GetMapping(value = "/me")
     public ResponseEntity<AdsDto> getAuthenticatedUserAds(Authentication authentication) {
-        logger.info("AdsController getAuthenticatedUserAds()");
+        logger.debug("AdsController getAuthenticatedUserAds()");
         String email = authentication.getName();
         Author author = authorService.getByEmail(email).get();
         List<Ad> ads = adService.getByAuthor(author);
@@ -224,7 +224,7 @@ public class AdsController {
     @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @PreAuthorize("@userSecurity.isAdAuthor(#id) or hasAuthority('ADMIN')")
     public ResponseEntity<String[]> updateAdImage(@PathVariable("id") Integer id, @RequestPart MultipartFile image, Authentication authentication) {
-        logger.info("AdsController updateAdImage()");
+        logger.debug("AdsController updateAdImage()");
         Ad ad = adService.getById(id).orElseThrow(() -> new AdNotFoundException());
         AdImage adImage = new AdImage();
         try {

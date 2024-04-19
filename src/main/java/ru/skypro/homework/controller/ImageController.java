@@ -61,7 +61,7 @@ public class ImageController {
     @GetMapping(value = "/avatar/{id}")
     @ResponseBody
     public ResponseEntity<byte[]> getAvatarImage(@PathVariable("id") Integer id) {
-        logger.info("ImageController getAvatarImage()");
+        logger.debug("ImageController getAvatarImage()");
         Author author = authorService.getById(id).orElseThrow(UserNotFoundException::new);
         Avatar avatar = avatarService.getByAuthor(author).orElseThrow(AvatarNotFoundException::new);
         HttpHeaders headers = new HttpHeaders();
@@ -85,7 +85,7 @@ public class ImageController {
     @GetMapping(value = "/adImage/{id}")
     @ResponseBody
     public ResponseEntity<byte[]> getAdImage(@PathVariable("id") Integer id, HttpServletResponse response) {
-        logger.info("ImageController getAvatarImage()");
+        logger.debug("ImageController getAvatarImage()");
         Ad ad = adService.getById(id).orElseThrow(AdNotFoundException::new);
         AdImage adImage = adImageService.getByAd(ad).orElseThrow(AdImageNotFoundException::new);
         Path path = Path.of(adImage.getFilePath());

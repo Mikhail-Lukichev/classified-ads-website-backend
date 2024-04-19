@@ -52,7 +52,7 @@ public class UserController {
             }, tags = "Пользователи")
     @PostMapping("/set_password")
     public ResponseEntity<?> updatePassword(@RequestBody NewPasswordDto updatePassword, Authentication authentication) {
-        logger.info("UserController updatePassword()");
+        logger.debug("UserController updatePassword()");
         Author author = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
         if (authorService.updatePassword(author, updatePassword)) {
             return ResponseEntity.ok().build();
@@ -75,7 +75,7 @@ public class UserController {
             }, tags = "Пользователи")
     @GetMapping("/me")
     public ResponseEntity<UserDto> getAuthenticatedUserInfo(Authentication authentication) {
-        logger.info("UserController getAuthenticatedUserInfo()");
+        logger.debug("UserController getAuthenticatedUserInfo()");
         Author author = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
         UserDto result = authorMapper.toUserDto(author);
         return ResponseEntity.ok(result);
@@ -95,7 +95,7 @@ public class UserController {
             }, tags = "Пользователи")
     @PatchMapping("/me")
     public ResponseEntity<UpdateUserDto> updateAuthenticatedUser(@RequestBody UpdateUserDto updateUserDto, Authentication authentication) {
-        logger.info("UserController updateAuthenticatedUser()");
+        logger.debug("UserController updateAuthenticatedUser()");
         Author foundAuthor = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
         Author updateAuthor = authorMapper.toAuthor(updateUserDto);
 
@@ -121,7 +121,7 @@ public class UserController {
             }, tags = "Пользователи")
     @PatchMapping(value = "/me/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateAuthenticatedUserImage(@RequestParam MultipartFile image, Authentication authentication) {
-        logger.info("UserController updateAuthenticatedUserImage()");
+        logger.debug("UserController updateAuthenticatedUserImage()");
         Author author = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
         try {
             avatarService.upload(author, image);
