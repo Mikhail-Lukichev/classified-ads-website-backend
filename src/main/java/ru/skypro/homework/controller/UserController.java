@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,6 +33,8 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class UserController {
 
+    private static Logger logger = LoggerFactory.getLogger(Slf4j.class);
+
     private final AuthorMapper authorMapper;
     private final AuthorServiceImpl authorService;
     private final AvatarServiceImpl avatarService;
@@ -47,8 +51,10 @@ public class UserController {
                     )
             }, tags = "Пользователи")
     @PostMapping("/set_password")
-    public ResponseEntity<?> updatePassword(@RequestBody NewPasswordDto updatePassword) {
-        if (true) {
+    public ResponseEntity<?> updatePassword(@RequestBody NewPasswordDto updatePassword, Authentication authentication) {
+        logger.debug("UserController updatePassword()");
+        Author author = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
+        if (authorService.updatePassword(author, updatePassword)) {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -69,13 +75,10 @@ public class UserController {
             }, tags = "Пользователи")
     @GetMapping("/me")
     public ResponseEntity<UserDto> getAuthenticatedUserInfo(Authentication authentication) {
-        if (authentication.isAuthenticated()) {
-            Author author = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
-            UserDto result = authorMapper.toUserDto(author);
-            return ResponseEntity.ok(result);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        logger.debug("UserController getAuthenticatedUserInfo()");
+        Author author = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
+        UserDto result = authorMapper.toUserDto(author);
+        return ResponseEntity.ok(result);
     }
 
     @Operation(summary = "Обновление информации об авторизованном пользователе",
@@ -92,20 +95,17 @@ public class UserController {
             }, tags = "Пользователи")
     @PatchMapping("/me")
     public ResponseEntity<UpdateUserDto> updateAuthenticatedUser(@RequestBody UpdateUserDto updateUserDto, Authentication authentication) {
-        if (authentication.isAuthenticated()) {
-            Author foundAuthor = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
-            Author updateAuthor = authorMapper.toAuthor(updateUserDto);
+        logger.debug("UserController updateAuthenticatedUser()");
+        Author foundAuthor = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
+        Author updateAuthor = authorMapper.toAuthor(updateUserDto);
 
-            foundAuthor.setFirstName(updateAuthor.getFirstName());
-            foundAuthor.setLastName(updateAuthor.getLastName());
-            foundAuthor.setPhone(updateAuthor.getPhone());
+        foundAuthor.setFirstName(updateAuthor.getFirstName());
+        foundAuthor.setLastName(updateAuthor.getLastName());
+        foundAuthor.setPhone(updateAuthor.getPhone());
 
-            UpdateUserDto result = authorMapper.toUpdateUserDto(authorService.add(foundAuthor));
+        UpdateUserDto result = authorMapper.toUpdateUserDto(authorService.add(foundAuthor));
 
-            return ResponseEntity.ok().body(result);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        return ResponseEntity.ok().body(result);
     }
 
     @Operation(summary = "Обновление аватара авторизованного пользователя",
@@ -121,18 +121,15 @@ public class UserController {
             }, tags = "Пользователи")
     @PatchMapping(value = "/me/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> updateAuthenticatedUserImage(@RequestParam MultipartFile image, Authentication authentication) {
-        if (authentication.isAuthenticated()) {
-            Author author = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
-            try {
-                avatarService.upload(author, image);
-            } catch (IOException e) {
-                System.out.println("Cannot upload avatar image.");
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            }
-            return ResponseEntity.ok().build();
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        logger.debug("UserController updateAuthenticatedUserImage()");
+        Author author = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
+        try {
+            avatarService.upload(author, image);
+        } catch (IOException e) {
+            System.out.println("Cannot upload avatar image.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+        return ResponseEntity.ok().build();
     }
 
 

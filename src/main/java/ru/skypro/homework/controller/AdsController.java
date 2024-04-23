@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,7 @@ import ru.skypro.homework.dto.*;
 import ru.skypro.homework.entity.Ad;
 import ru.skypro.homework.entity.AdImage;
 import ru.skypro.homework.entity.Author;
+import ru.skypro.homework.exception.AdNotFoundException;
 import ru.skypro.homework.mapper.AdMapper;
 import ru.skypro.homework.service.impl.AdImageServiceImpl;
 import ru.skypro.homework.service.impl.AdServiceImpl;
@@ -56,14 +58,11 @@ public class AdsController {
             }, tags = "Объявления")
     @GetMapping()
     public ResponseEntity<AdsDto> getAds() {
-        logger.info("AdsController getAds()");
-
+        logger.debug("AdsController getAds()");
         List<Ad> ads = adService.getAll();
-
         AdsDto result = new AdsDto();
         result.setCount(ads.size());
         result.setResults(ads.stream().map(a -> adMapper.toAdDto(a)).collect(Collectors.toList()));
-
         return ResponseEntity.ok(result);
     }
 
@@ -81,29 +80,20 @@ public class AdsController {
             }, tags = "Объявления")
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<AdDto> postAd(@RequestPart CreateOrUpdateAdDto properties, @RequestPart MultipartFile image, Authentication authentication) {
-        logger.info("AdsController postAd()");
-
-        if (authentication.isAuthenticated()) {
-            Author author = authorService.getByEmail(authentication.getName()).get();
-
-            Ad ad = adMapper.toAd(properties);
-            ad.setAuthor(author);
-            Ad createdAd = adService.add(ad);
-
-            try {
-                AdImage adImage = adImageService.upload(createdAd, image);
-                createdAd.setAdImage(adImage);
-            } catch (IOException e) {
-                System.out.println("Cannot upload ad image.");
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-            }
-
-            AdDto result = adMapper.toAdDto(createdAd);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(result);
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        logger.debug("AdsController postAd()");
+        Author author = authorService.getByEmail(authentication.getName()).get();
+        Ad ad = adMapper.toAd(properties);
+        ad.setAuthor(author);
+        Ad createdAd = adService.add(ad);
+        try {
+            AdImage adImage = adImageService.upload(createdAd, image);
+            createdAd.setAdImage(adImage);
+        } catch (IOException e) {
+            System.out.println("Cannot upload ad image.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
+        AdDto result = adMapper.toAdDto(createdAd);
+        return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 
     @Operation(summary = "Получение информации об объявлении",
@@ -124,21 +114,12 @@ public class AdsController {
             }, tags = "Объявления")
     @GetMapping(value = "/{id}")
     public ResponseEntity<ExtendedAdDto> getAd(@PathVariable("id") Integer id, Authentication authentication) {
-        logger.info("AdsController getAd()");
-
-        if (authentication.isAuthenticated()) {
-            Optional<Ad> ad = adService.getById(id);
-            if (ad.isPresent()) {
-                Author author = ad.get().getAuthor();
-                AdImage adImage = ad.get().getAdImage();
-                ExtendedAdDto result = adMapper.toExtendedAdDto(ad.get());
-                return ResponseEntity.status(HttpStatus.OK).body(result);
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        logger.debug("AdsController getAd()");
+        Ad ad = adService.getById(id).orElseThrow(() -> new AdNotFoundException());
+        Author author = ad.getAuthor();
+        AdImage adImage = ad.getAdImage();
+        ExtendedAdDto result = adMapper.toExtendedAdDto(ad);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @Operation(summary = "Удаление объявления",
@@ -161,22 +142,12 @@ public class AdsController {
                     )
             }, tags = "Объявления")
     @DeleteMapping(value = "/{id}")
+    @PreAuthorize("@userSecurity.isAdAuthor(#id) or hasAuthority('ADMIN')")
     public ResponseEntity<ExtendedAdDto> deleteAd(@PathVariable("id") Integer id, Authentication authentication) {
-        logger.info("AdsController deleteAd()");
-
-        if (authentication.isAuthenticated()) {
-            Optional<Ad> ad = adService.getById(id);
-            if (ad.isPresent()) {
-                adService.deleteById(id);
-                return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-//
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        logger.debug("AdsController deleteAd()");
+        Ad ad = adService.getById(id).orElseThrow(() -> new AdNotFoundException());
+        adService.deleteById(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @Operation(summary = "Обновление информации об объявлении",
@@ -200,25 +171,14 @@ public class AdsController {
                     )
             }, tags = "Объявления")
     @PatchMapping(value = "/{id}")
+    @PreAuthorize("@userSecurity.isAdAuthor(#id) or hasAuthority('ADMIN')")
     public ResponseEntity<ExtendedAdDto> updateAd(@PathVariable("id") Integer id, @RequestBody(required = true) CreateOrUpdateAdDto properties, Authentication authentication) {
-        logger.info("AdsController updateAd()");
-
-        if (authentication.isAuthenticated()) {
-            if (adService.getById(id).isPresent()) {
-                Ad foundAd = adService.getById(id).get();
-                Ad updateAd = adService.mergeCreateOrUpdateAdDto(properties, foundAd);
-                adService.updateAd(updateAd);
-
-                ExtendedAdDto result = adMapper.toExtendedAdDto(updateAd);
-
-                return ResponseEntity.status(HttpStatus.OK).body(result);
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
-//        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        logger.debug("AdsController updateAd()");
+        Ad ad = adService.getById(id).orElseThrow(() -> new AdNotFoundException());
+        Ad updateAd = adService.mergeCreateOrUpdateAdDto(properties, ad);
+        adService.updateAd(updateAd);
+        ExtendedAdDto result = adMapper.toExtendedAdDto(updateAd);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @Operation(summary = "Получение объявлений авторизованного пользователя",
@@ -235,16 +195,11 @@ public class AdsController {
             }, tags = "Объявления")
     @GetMapping(value = "/me")
     public ResponseEntity<AdsDto> getAuthenticatedUserAds(Authentication authentication) {
-        logger.info("AdsController getAuthenticatedUserAds()");
-
-        if (authentication.isAuthenticated()) {
-            String email = authentication.getName();
-            Author author = authorService.getByEmail(email).get();
-            List<Ad> ads = adService.getByAuthor(author);
-            return ResponseEntity.ok().body(adMapper.toAdsDto(ads));
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        logger.debug("AdsController getAuthenticatedUserAds()");
+        String email = authentication.getName();
+        Author author = authorService.getByEmail(email).get();
+        List<Ad> ads = adService.getByAuthor(author);
+        return ResponseEntity.ok().body(adMapper.toAdsDto(ads));
     }
 
     @Operation(summary = "Обновление картинки объявления",
@@ -267,28 +222,17 @@ public class AdsController {
                     )
             }, tags = "Объявления")
     @PatchMapping(value = "/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("@userSecurity.isAdAuthor(#id) or hasAuthority('ADMIN')")
     public ResponseEntity<String[]> updateAdImage(@PathVariable("id") Integer id, @RequestPart MultipartFile image, Authentication authentication) {
-        logger.info("AdsController updateAdImage()");
-
-        if (authentication.isAuthenticated()) {
-            if (adService.getById(id).isPresent()) {
-                Ad foundAd = adService.getById(id).get();
-                AdImage adImage = new AdImage();
-                try {
-                    adImage = adImageService.upload(foundAd, image);
-                } catch (IOException e) {
-                    System.out.println("Cannot upload ad image.");
-                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-                }
-                return ResponseEntity.status(HttpStatus.OK).body(new String[]{adImage.toString()});
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-            }
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        logger.debug("AdsController updateAdImage()");
+        Ad ad = adService.getById(id).orElseThrow(() -> new AdNotFoundException());
+        AdImage adImage = new AdImage();
+        try {
+            adImage = adImageService.upload(ad, image);
+        } catch (IOException e) {
+            System.out.println("Cannot upload ad image.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
-//            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        return ResponseEntity.status(HttpStatus.OK).body(new String[]{adImage.toString()});
     }
-
-
 }

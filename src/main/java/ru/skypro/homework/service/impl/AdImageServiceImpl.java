@@ -1,5 +1,8 @@
 package ru.skypro.homework.service.impl;
 
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,8 +18,11 @@ import java.util.Optional;
 
 import static java.nio.file.StandardOpenOption.CREATE_NEW;
 
+@Slf4j
 @Service
 public class AdImageServiceImpl implements AdImageService {
+
+    private static Logger logger = LoggerFactory.getLogger(Slf4j.class);
 
     @Value("${ad.adImage.dir.path}")
     private String adImagesDir;
@@ -28,6 +34,7 @@ public class AdImageServiceImpl implements AdImageService {
     }
 
     public AdImage upload(Ad ad, MultipartFile file) throws IOException {
+        logger.debug("AdImageServiceImpl upload()");
         Path filePath = Path.of(adImagesDir, ad.getId() + "." + getExtension(file.getOriginalFilename()));
         Files.createDirectories(filePath.getParent());
         Files.deleteIfExists(filePath);
@@ -53,10 +60,17 @@ public class AdImageServiceImpl implements AdImageService {
     }
 
     private String getExtension(String fileName) {
+        logger.debug("AdImageServiceImpl getExtension()");
         return fileName.substring(fileName.lastIndexOf(".") + 1);
     }
 
     public Optional<AdImage> getById(Integer id) {
+        logger.debug("AdImageServiceImpl getById()");
         return adImageRepository.findById(id);
+    }
+
+    public Optional<AdImage> getByAd(Ad ad) {
+        logger.debug("AdImageServiceImpl getByAd()");
+        return adImageRepository.findByAd(ad);
     }
 }
