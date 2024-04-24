@@ -13,5 +13,4 @@ public interface AuthorService {
     List<String> getAuthorities(Author author);
     boolean isAdAuthor(Integer adId, Author author);
     boolean isCommentAuthor(Integer commentId, Author author);
-    boolean updatePassword(Author author, NewPasswordDto passwordDto);
 }

@@ -20,6 +20,7 @@ import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.entity.Author;
 import ru.skypro.homework.exception.UserNotFoundException;
 import ru.skypro.homework.mapper.AuthorMapper;
+import ru.skypro.homework.service.impl.AuthServiceImpl;
 import ru.skypro.homework.service.impl.AuthorServiceImpl;
 import ru.skypro.homework.service.impl.AvatarServiceImpl;
 
@@ -38,6 +39,7 @@ public class UserController {
     private final AuthorMapper authorMapper;
     private final AuthorServiceImpl authorService;
     private final AvatarServiceImpl avatarService;
+    private final AuthServiceImpl authService;
 
     @Operation(summary = "Обновление пароля",
             responses = {
@@ -54,7 +56,7 @@ public class UserController {
     public ResponseEntity<?> updatePassword(@RequestBody NewPasswordDto updatePassword, Authentication authentication) {
         logger.debug("UserController updatePassword()");
         Author author = authorService.getByEmail(authentication.getName()).orElseThrow(UserNotFoundException::new);
-        if (authorService.updatePassword(author, updatePassword)) {
+        if (authService.updatePassword(author, updatePassword)) {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
