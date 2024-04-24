@@ -1,9 +1,7 @@
 package ru.skypro.homework;
 
 import ru.skypro.homework.dto.*;
-import ru.skypro.homework.entity.Ad;
-import ru.skypro.homework.entity.Author;
-import ru.skypro.homework.entity.Comment;
+import ru.skypro.homework.entity.*;
 
 import java.util.List;
 
@@ -19,6 +17,7 @@ public class TestUtils {
         ad.setPrice(111);
         ad.setTitle("title1");
         ad.setDescription("description1");
+
         Author author = new Author();
         author.setId(1);
         author.setFirstName("firstname1");
@@ -26,7 +25,15 @@ public class TestUtils {
         author.setPhone("111");
         author.setEmail("email1");
 
+        AdImage adImage = new AdImage();
+        adImage.setAd(ad);
+        adImage.setId(1);
+        adImage.setFilePath("path1");
+        adImage.setFileSize(111L);
+        adImage.setMediaType("type1");
+
         ad.setAuthor(author);
+        ad.setAdImage(adImage);
         return ad;
     }
 
@@ -36,10 +43,45 @@ public class TestUtils {
         ad.setPrice(222);
         ad.setTitle("title2");
         ad.setDescription("description2");
+
         Author author = new Author();
         author.setId(2);
+        author.setFirstName("firstname2");
+        author.setLastName("lastname2");
+        author.setPhone("222");
+        author.setEmail("email2");
+
+        AdImage adImage = new AdImage();
+        adImage.setAd(ad);
+        adImage.setId(2);
+        adImage.setFilePath("path2");
+        adImage.setFileSize(222L);
+        adImage.setMediaType("type2");
+
         ad.setAuthor(author);
+        ad.setAdImage(adImage);
         return ad;
+    }
+
+    public static AdImage getAdImage() {
+        AdImage adImage = new AdImage();
+        Ad ad = getAd1();
+        adImage.setAd(ad);
+        adImage.setId(1);
+        adImage.setFilePath("path1");
+        adImage.setFileSize(111L);
+        adImage.setMediaType("type1");
+        return adImage;
+    }
+
+    public static Avatar getAvatar() {
+        Avatar avatar = new Avatar();
+        Author author = getAuthor1();
+        avatar.setId(1);
+        avatar.setFileSize(111L);
+        avatar.setMediaType("type1");
+        avatar.setAuthor(author);
+        return  avatar;
     }
 
     public static AdDto getAdDto1(){
