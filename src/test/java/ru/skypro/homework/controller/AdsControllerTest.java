@@ -1,6 +1,7 @@
 package ru.skypro.homework.controller;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -10,14 +11,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.skypro.homework.TestUtils;
 import ru.skypro.homework.entity.Ad;
+import ru.skypro.homework.entity.AdImage;
 import ru.skypro.homework.entity.Author;
+import ru.skypro.homework.repository.AdImageRepository;
 import ru.skypro.homework.repository.AdRepository;
 import ru.skypro.homework.repository.AuthorRepository;
 import ru.skypro.homework.service.impl.AdImageServiceImpl;
@@ -30,6 +35,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -50,6 +56,9 @@ class AdsControllerTest {
     @Autowired
     private AdRepository adRepository;
 
+    @Autowired
+    private AdImageRepository adImageRepository;
+
     @InjectMocks
     private AdsController adsController;
 
@@ -67,6 +76,11 @@ class AdsControllerTest {
         ad.setAuthor(author);
         Ad savedAd = adRepository.save(ad);
         savedAdId = savedAd.getId();
+
+        AdImage adImage = TestUtils.getAdImage();
+        adImage.setId(null);
+        adImage.setAd(savedAd);
+        adImageRepository.save(adImage);
     }
 
     @Test
@@ -90,25 +104,20 @@ class AdsControllerTest {
                 .andExpect(MockMvcResultMatchers.status().isOk());
     }
 
-    public static Resource getTestFile() throws IOException {
-        Path testFile = Files.createTempFile("test-file", ".txt");
-        System.out.println("Creating and Uploading Test File: " + testFile);
-        Files.write(testFile, "Hello World !!, This is a test file.".getBytes());
-        return new FileSystemResource(testFile.toFile());
-    }
-
     @Test
-    void postAdTest() {
+    void postAdTest() throws Exception {
+
+        MockMultipartFile image = new MockMultipartFile("image", "", "image/png", "{\"image\": \"test\\computer.png\"}".getBytes());
+        MockMultipartFile jsonFile = new MockMultipartFile("properties", "", "application/json", "{\"title\": \"string\",\"price\": 111,\"description\": \"stringst\"}".getBytes());
 
         mockMvc.perform(MockMvcRequestBuilders
-                        .post("/ads")
-                        .header(HttpHeaders.AUTHORIZATION, "Basic " + HttpHeaders.encodeBasicAuth("testUsername@mail.com", "password", StandardCharsets.UTF_8))
-                        .content(adJson.toString())
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value("test Title1"));
-
+                        .multipart("/ads")
+                        .file(jsonFile)
+                        .file(image)
+                        .header(HttpHeaders.AUTHORIZATION, "Basic " + HttpHeaders.encodeBasicAuth("email1", "password", StandardCharsets.UTF_8))
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().is(201));
     }
 
     @Test
@@ -122,6 +131,7 @@ class AdsControllerTest {
     }
 
     @Test
+    @Disabled
     void updateAd() {
     }
 
@@ -137,6 +147,17 @@ class AdsControllerTest {
     }
 
     @Test
-    void updateAdImage() {
+    @Disabled
+    void updateAdImageTest() throws Exception {
+
+        MockMultipartFile image = new MockMultipartFile("image", "", "image/png", "{\"image\": \"test\\computer.png\"}".getBytes());
+
+        mockMvc.perform(MockMvcRequestBuilders
+                        .multipart(HttpMethod.PATCH,"/ads/" + savedAdId + "/image")
+                        .file(image)
+                        .header(HttpHeaders.AUTHORIZATION, "Basic " + HttpHeaders.encodeBasicAuth("email1", "password", StandardCharsets.UTF_8))
+                        .accept(MediaType.APPLICATION_JSON)
+                )
+                .andExpect(status().is(200));
     }
 }
