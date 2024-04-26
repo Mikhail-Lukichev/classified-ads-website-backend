@@ -16,13 +16,6 @@ import java.util.stream.Collectors;
 
 @Component
 public class CommentMapper {
-    private final AuthorService authorService;
-    private final AdService adService;
-
-    public CommentMapper(AuthorService authorService, AdService adService) {
-        this.authorService = authorService;
-        this.adService = adService;
-    }
 
     public Comment toComment(CreateOrUpdateCommentDto dto) {
         Comment comment = new Comment();

@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import ru.skypro.homework.dto.NewPasswordDto;
 import ru.skypro.homework.dto.RegisterDto;
 import ru.skypro.homework.dto.Role;
 import ru.skypro.homework.entity.Author;
@@ -55,11 +56,21 @@ public class AuthServiceImpl implements AuthService {
         Role role = registerDto.getRole() == null ? USER : registerDto.getRole();
         registerDto.setRole(role);
 
-
         Author newAuthor = authorMapper.toAuthor(registerDto);
+        newAuthor.setPassword(encoder.encode(newAuthor.getPassword()));
         authorService.add(newAuthor);
 
         return true;
+    }
+
+    public boolean updatePassword(Author author, NewPasswordDto passwordDto) {
+        logger.debug("AuthServiceImpl updatePassword()");
+        if (encoder.matches(passwordDto.getCurrentPassword(), author.getPassword())) {
+            author.setPassword(encoder.encode(passwordDto.getNewPassword()));
+            authorService.add(author);
+            return true;
+        }
+        return false;
     }
 
 }
